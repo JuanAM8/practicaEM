@@ -1,3 +1,4 @@
+var inputUser;
 Spacewar.menuState = function(game) {
 
 }
@@ -24,12 +25,25 @@ Spacewar.menuState.prototype = {
 	},
 
 	create : function() {
-
+		var bg = game.add.sprite(0, 0, 'background');
+		var bStart = game.add.button(game.world.centerX - 100, 250, 'bStart', onClickStart, this)
 	},
 
 	update : function() {
-		if (typeof game.global.myPlayer.id !== 'undefined') {
-			game.state.start('lobbyState')
-		}
+	}
+}
+
+function onClickStart(){
+	inputUser = prompt("Please enter your username:", "defaultUser000");
+	console.log("Usuario: " + inputUser);
+	//Enviar nombre al servidor
+	nextRoom();
+}
+
+
+
+function nextRoom(){
+	if (typeof game.global.myPlayer.id !== 'undefined') {
+		game.state.start('lobbyState')
 	}
 }

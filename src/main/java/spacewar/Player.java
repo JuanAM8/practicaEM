@@ -10,11 +10,20 @@ public class Player extends Spaceship {
 	private final WebSocketSession session;
 	private final int playerId;
 	private final String shipType;
+	private String userName;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
 		this.session = session;
 		this.shipType = this.getRandomShipType();
+	}
+	
+	public void setUserName(String _userName) {
+		userName = _userName;
+	}
+	
+	public String getUserName() {
+		return this.userName;
 	}
 
 	public int getPlayerId() {

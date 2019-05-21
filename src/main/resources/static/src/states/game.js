@@ -39,9 +39,19 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.image = game.add.sprite(0, 0, 'spacewar',
 				game.global.myPlayer.shipType)
 		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
+		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+		game.global.myPlayer.text = game.add.text(50, 50, inputUser, style);
+		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
+		game.global.myPlayer.life = 10;
+		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);
+		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
+		//Solo cliente
+		game.global.remainingAmmo = game.add.text(0, 0, game.global.proyectiles.length, style);
+		
 	},
 
 	create : function() {
+		console.log("En game: " + game.global.myPlayer.text);
 		this.bulletTime = 0
 		this.fireBullet = function() {
 			if (game.time.now > this.bulletTime) {
@@ -65,6 +75,12 @@ Spacewar.gameState.prototype = {
 				Phaser.Keyboard.SPACEBAR ]);
 
 		game.camera.follow(game.global.myPlayer.image);
+		//Para todos
+		game.global.myPlayer.text.x = game.global.myPlayer.image.x;
+		game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
+		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
+		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
+
 	},
 
 	update : function() {
@@ -95,5 +111,16 @@ Spacewar.gameState.prototype = {
 			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
 		}
 		game.global.socket.send(JSON.stringify(msg))
+		//Debe mostrarse para todos
+		game.global.myPlayer.text.x = game.global.myPlayer.image.x;
+		game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
+		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
+		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
+		//Solo cliente
+		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+		game.global.remainingAmmo = game.add.text(0, 0, game.global.proyectiles.length, style);
+		
+		//Falta propulsor		
+		
 	}
 }

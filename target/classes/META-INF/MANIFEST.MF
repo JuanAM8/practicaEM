@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Implementation-Title: MarioAceitunoCordero-CesarCarbajoGarcia-JuanAnto
+ nioMartinGarcia
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: Juan
+Implementation-Vendor-Id: es.urjc.em.practica_2018-19
+Build-Jdk: 1.8.0_191
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/MarioAceitunoCordero-CesarCarbajoGarcia-JuanAntonio
+ MartinGarcia
+Created-By: Maven Integration for Eclipse
+
