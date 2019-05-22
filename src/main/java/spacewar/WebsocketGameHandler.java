@@ -63,6 +63,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					game.addProjectile(projectile.getId(), projectile);
 				}
 				break;
+			case "LOG IN":
+				player.setUserName(node.path("userName").toString());
 			default:
 				break;
 			}

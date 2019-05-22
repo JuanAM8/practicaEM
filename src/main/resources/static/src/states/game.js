@@ -51,7 +51,6 @@ Spacewar.gameState.prototype = {
 	},
 
 	create : function() {
-		console.log("En game: " + game.global.myPlayer.text);
 		this.bulletTime = 0
 		this.fireBullet = function() {
 			if (game.time.now > this.bulletTime) {
@@ -110,6 +109,7 @@ Spacewar.gameState.prototype = {
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
 		}
+		//Envia mensaje con que hay movimiento
 		game.global.socket.send(JSON.stringify(msg))
 		//Debe mostrarse para todos
 		game.global.myPlayer.text.x = game.global.myPlayer.image.x;

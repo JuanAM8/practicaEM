@@ -12,16 +12,7 @@ Spacewar.menuState.prototype = {
 	},
 
 	preload : function() {
-		// In case JOIN message from server failed, we force it
-		if (typeof game.global.myPlayer.id == 'undefined') {
-			if (game.global.DEBUG_MODE) {
-				console.log("[DEBUG] Forcing joining server...");
-			}
-			let message = {
-				event : 'JOIN'
-			}
-			game.global.socket.send(JSON.stringify(message))
-		}
+
 	},
 
 	create : function() {
@@ -37,6 +28,10 @@ function onClickStart(){
 	inputUser = prompt("Please enter your username:", "defaultUser000");
 	console.log("Usuario: " + inputUser);
 	//Enviar nombre al servidor
+	let msg = new Object();
+	msg.event = 'LOG IN';
+	msg.userName = inputUser;
+	game.global.socket.send(JSON.stringify(msg))
 	nextRoom();
 }
 

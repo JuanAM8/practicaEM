@@ -11,6 +11,7 @@ Spacewar.preloadState.prototype = {
 	},
 
 	preload : function() {
+		//Carga los Assets necesarios
 		game.load.atlas('spacewar', 'assets/atlas/spacewar.png',
 				'assets/atlas/spacewar.json',
 				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH)
