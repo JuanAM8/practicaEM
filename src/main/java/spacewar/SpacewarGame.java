@@ -34,9 +34,19 @@ public class SpacewarGame {
 	private AtomicInteger numPlayers = new AtomicInteger();
 	//Pendiente de confirmar
 	private Map<String, Room> rooms = new ConcurrentHashMap<>();
+	private Map<String, String> names = new ConcurrentHashMap<>();
 
 	private SpacewarGame() {
 		
+	}
+	
+	public synchronized boolean tryAddName(String name) {
+		if(names.containsKey(name)) {
+			return false;
+		}else {
+			names.put(name, name);
+			return true;
+		}
 	}
 	
 	public void addRoom(Room room) {
@@ -45,6 +55,10 @@ public class SpacewarGame {
 	
 	public Collection<Room> getRooms() {
 		return rooms.values();
+	}
+	
+	public Room getRoom(String key) {
+		return rooms.get(key);
 	}
 	
 	public void removeRoom(Room room) {

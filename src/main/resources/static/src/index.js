@@ -60,6 +60,18 @@ window.onload = function() {
 					name : msg.room
 			}
 			break
+		case 'LOG IN':
+			if(msg.success){
+				if (typeof game.global.myPlayer.id !== 'undefined') {
+					game.state.start('lobbyState')
+				}
+			}else{
+				alert('Este usuario ya existe');
+				onClickStart();
+			}
+			
+			
+			break
 		case 'GAME STATE UPDATE' :
 			if (game.global.DEBUG_MODE) {
 				console.log('[DEBUG] GAME STATE UPDATE message recieved')
@@ -127,10 +139,12 @@ window.onload = function() {
 			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
 		case 'UPDATE ROOMS' :
+			game.global.rooms = [];
 			let i = 0;
 			for (var room of msg.rooms) {
 				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers)
-				roomie.image = game.add.button(20, 30+i, 'roomInfo', joinRoom(room.name), this)
+				//roomie.image = game.add.button(20, 30+i, 'roomInfo', joinRoom(room.name), this)
+				roomie.image = game.add.button(20, 30+i, 'roomInfo', console.log("me pulsaste"), this)
 				roomie.text = game.add.text(20, 50+i, "Modo: " + room.mode + " Nombre: " + room.name 
 				+ " Jugadores: " + room.numPlayers + " Creador: " + room.creator, { font: "bold 20px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
 				game.global.rooms.push(roomie)

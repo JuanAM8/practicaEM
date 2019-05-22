@@ -29,7 +29,7 @@ public class Room {
 	}
 	
 	public void addPlayer(Player _player) {
-		players.put(_player.getSession().getId(), _player);
+		players.put(_player.getUserName(), _player);
 	}
 	
 	public int getNumberOfPlayers() {

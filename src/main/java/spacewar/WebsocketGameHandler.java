@@ -52,6 +52,11 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "JOIN ROOM":
+				//añade jugador a la room
+				Room auxRoom = game.getRoom(node.path("name").asText());
+				auxRoom.addPlayer(player);
+				game.addRoom(auxRoom);
+				
 				msg.put("event", "NEW ROOM");
 				//msg.put("room", "GLOBAL");
 				System.out.println(node.path("name").asText());
@@ -70,7 +75,14 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				}
 				break;
 			case "LOG IN":
-				player.setUserName(node.path("userName").asText());
+				boolean success = game.tryAddName(node.path("userName").asText());
+				if (success) {
+					player.setUserName(node.path("userName").asText());
+				}
+				msg.put("event", "LOG IN");
+				msg.put("success", success);
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				
 				break;
 			case "CREATE ROOM":
 				room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
