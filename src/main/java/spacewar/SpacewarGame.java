@@ -32,9 +32,23 @@ public class SpacewarGame {
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
+	//Pendiente de confirmar
+	private Map<String, Room> rooms = new ConcurrentHashMap<>();
 
 	private SpacewarGame() {
 		
+	}
+	
+	public void addRoom(Room room) {
+		rooms.put(room.getName(), room);
+	}
+	
+	public Collection<Room> getRooms() {
+		return rooms.values();
+	}
+	
+	public void removeRoom(Room room) {
+		rooms.remove(room.getName());
 	}
 
 	public void addPlayer(Player player) {

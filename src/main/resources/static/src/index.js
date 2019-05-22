@@ -125,6 +125,14 @@ window.onload = function() {
 			game.global.otherPlayers[msg.id].image.destroy()
 			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
+		case 'UPDATE ROOMS' :
+			for (var room of msg.rooms) {
+				console.log("Nombre sala: " + room.name);				
+				console.log("Creador sala: " + room.creator);
+				console.log("Modo sala: " + room.mode);
+				console.log("NumPersonas sala: " + room.numPlayers);			
+			}
+			break
 		default :
 			console.dir(msg)
 			break

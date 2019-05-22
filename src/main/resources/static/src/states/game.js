@@ -40,7 +40,7 @@ Spacewar.gameState.prototype = {
 				game.global.myPlayer.shipType)
 		game.global.myPlayer.image.anchor.setTo(0.5, 0.5)
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
-		game.global.myPlayer.text = game.add.text(50, 50, inputUser, style);
+		game.global.myPlayer.text = game.add.text(50, 50, game.global.myPlayer.userName, style);
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
 		game.global.myPlayer.life = 10;
 		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);

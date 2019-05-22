@@ -1,5 +1,6 @@
 package spacewar;
 
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.web.socket.CloseStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class WebsocketGameHandler extends TextWebSocketHandler {
@@ -40,7 +42,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			JsonNode node = mapper.readTree(message.getPayload());
 			ObjectNode msg = mapper.createObjectNode();
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
-
+			Room room;
+			
 			switch (node.get("event").asText()) {
 			case "JOIN":
 				msg.put("event", "JOIN");
@@ -64,7 +67,30 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				}
 				break;
 			case "LOG IN":
-				player.setUserName(node.path("userName").toString());
+				player.setUserName(node.path("userName").asText());
+				break;
+			case "CREATE ROOM":
+				room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
+						node.path("room").get("mode").asText());
+				room.addPlayer(player);
+				game.addRoom(room);
+				break;
+			case "UPDATE ROOMS":
+				System.out.println("HEe entrado");
+				ArrayNode arrayNodeRooms = mapper.createArrayNode();
+				// Update rooms
+				for (Room nRoom : game.getRooms()) {
+					ObjectNode jsonRoom = mapper.createObjectNode();
+					jsonRoom.put("creator", nRoom.getCreator());
+					jsonRoom.put("name", nRoom.getName());
+					jsonRoom.put("mode", nRoom.getMode());
+					jsonRoom.put("numPlayers", nRoom.getNumberOfPlayers());
+					arrayNodeRooms.addPOJO(jsonRoom);
+				}
+				msg.put("event", "UPDATE ROOMS");
+				msg.putPOJO("rooms", arrayNodeRooms);
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				break;
 			default:
 				break;
 			}
