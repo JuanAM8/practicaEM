@@ -53,7 +53,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 			case "JOIN ROOM":
 				msg.put("event", "NEW ROOM");
-				msg.put("room", "GLOBAL");
+				//msg.put("room", "GLOBAL");
+				System.out.println(node.path("name").asText());
+				msg.put("room", node.path("name").asText());
+				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE MOVEMENT":
@@ -76,7 +79,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				game.addRoom(room);
 				break;
 			case "UPDATE ROOMS":
-				System.out.println("HEe entrado");
 				ArrayNode arrayNodeRooms = mapper.createArrayNode();
 				// Update rooms
 				for (Room nRoom : game.getRooms()) {

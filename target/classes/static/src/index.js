@@ -11,7 +11,8 @@ window.onload = function() {
 		socket : null,
 		myPlayer : new Object(),//Inicializa el jugador local del cliente
 		otherPlayers : [],//Array de los jugadores con los que se conecta
-		projectiles : []//Array de municion
+		projectiles : [],//Array de municion
+		rooms : []//Array de salas
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -126,11 +127,18 @@ window.onload = function() {
 			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
 		case 'UPDATE ROOMS' :
+			let i = 0;
 			for (var room of msg.rooms) {
+				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers)
+				roomie.image = game.add.button(20, 30+i, 'roomInfo', joinRoom(room.name), this)
+				roomie.text = game.add.text(20, 50+i, "Modo: " + room.mode + " Nombre: " + room.name 
+				+ " Jugadores: " + room.numPlayers + " Creador: " + room.creator, { font: "bold 20px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
+				game.global.rooms.push(roomie)
 				console.log("Nombre sala: " + room.name);				
 				console.log("Creador sala: " + room.creator);
 				console.log("Modo sala: " + room.mode);
-				console.log("NumPersonas sala: " + room.numPlayers);			
+				console.log("NumPersonas sala: " + room.numPlayers);
+				i+=70;			
 			}
 			break
 		default :
@@ -147,7 +155,6 @@ window.onload = function() {
 	game.state.add('matchmakingState', Spacewar.matchmakingState)
 	game.state.add('roomState', Spacewar.roomState)
 	game.state.add('gameState', Spacewar.gameState)
-
 	game.state.start('bootState')
 
 }
