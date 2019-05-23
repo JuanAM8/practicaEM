@@ -63,6 +63,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("mode", node.path("mode").asText());
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				if (auxRoom.getNumberOfPlayers() > 3) {
+					game.startRoomGame(auxRoom);
+				}
 				break;
 			case "UPDATE MOVEMENT":
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),

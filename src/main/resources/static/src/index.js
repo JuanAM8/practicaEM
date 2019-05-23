@@ -149,6 +149,8 @@ window.onload = function() {
 				i+=70;			
 			}
 			break
+		case 'START GAME' :
+			game.state.start('gameState')
 		default :
 			console.dir(msg)
 			break

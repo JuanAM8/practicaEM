@@ -87,6 +87,20 @@ public class SpacewarGame {
 		}
 	}
 
+	
+	public void startRoomGame(Room r) {
+		ObjectNode msg = mapper.createObjectNode();
+		msg.put("event", "START GAME");
+		try {
+			for(Player player : r.getPlayers()) {
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+			}
+		}catch(Throwable ex) {
+			
+		}
+		
+	}
+	
 	public void addProjectile(int id, Projectile projectile) {
 		projectiles.put(id, projectile);
 	}

@@ -1,7 +1,10 @@
 package spacewar;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CyclicBarrier;
 
 public class Room {
 
@@ -28,14 +31,15 @@ public class Room {
 		return mode;
 	}
 	
+	public Collection<Player> getPlayers() {
+		return players.values();
+	}
+	
 	public void addPlayer(Player _player) {
 		players.put(_player.getUserName(), _player);
 	}
 	
 	public int getNumberOfPlayers() {
 		return players.size();
-	}
-	
-	
-	
+	}	
 }
