@@ -11,6 +11,7 @@ public class Player extends Spaceship {
 	private final int playerId;
 	private final String shipType;
 	private String userName;
+	private String roomName;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
@@ -47,5 +48,13 @@ public class Player extends Spaceship {
 		String ship = (randomShips[new Random().nextInt(randomShips.length)]);
 		ship += "_0" + (new Random().nextInt(5) + 1) + ".png";
 		return ship;
+	}
+
+	public String getRoomName() {
+		return roomName;
+	}
+
+	public void setRoomName(String roomName) {
+		this.roomName = roomName;
 	}
 }

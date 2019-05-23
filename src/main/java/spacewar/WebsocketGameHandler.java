@@ -23,9 +23,11 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+		//Crea nuevo objeto jugador
 		Player player = new Player(playerId.incrementAndGet(), session);
 		session.getAttributes().put(PLAYER_ATTRIBUTE, player);
 		
+		//Envia esta informacion al cliente js
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "JOIN");
 		msg.put("id", player.getPlayerId());
@@ -33,6 +35,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
 		
+		//Añade al jugador a la lista de jugadores del juego
 		game.addPlayer(player);
 	}
 
@@ -54,6 +57,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "JOIN ROOM":
 				//añade jugador a la room
 				Room auxRoom = game.getRoom(node.path("name").asText());
+				player.setRoomName(node.path("name").asText());
 				auxRoom.addPlayer(player);
 				game.addRoom(auxRoom);
 				
@@ -63,8 +67,12 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("mode", node.path("mode").asText());
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				if (auxRoom.getNumberOfPlayers() > 3) {
+				if (auxRoom.getNumberOfPlayers() == 4) {
 					game.startRoomGame(auxRoom);
+				}else if(auxRoom.getNumberOfPlayers() == 2) {
+					Player auxCreator = auxRoom.searchPlayer(auxRoom.getCreator());
+					msg.put("event", "ROOM READY");
+					auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
 				break;
 			case "UPDATE MOVEMENT":
@@ -74,7 +82,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						node.path("movement").get("rotRight").asBoolean());
 				if (node.path("bullet").asBoolean()) {
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
-					game.addProjectile(projectile.getId(), projectile);
+					Room projRoom = game.getRoom(player.getRoomName());
+					projRoom.addProjectile(projectile.getId(), projectile);
+					game.addRoom(projRoom);
 				}
 				break;
 			case "LOG IN":
@@ -88,10 +98,20 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				
 				break;
 			case "CREATE ROOM":
-				room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
-						node.path("room").get("mode").asText());
-				room.addPlayer(player);
-				game.addRoom(room);
+				boolean successRoom = game.tryAddRoomName(node.path("room").get("name").asText());
+				if (successRoom) {
+					room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
+							node.path("room").get("mode").asText());
+					player.setRoomName(node.path("room").get("name").asText());
+					room.addPlayer(player);
+					
+					game.addRoom(room);
+				}
+				msg.put("event", "CREATE ROOM");
+				msg.put("success", successRoom);
+				msg.put("roomName", node.path("room").get("name").asText());
+				msg.put("roomMode", node.path("room").get("mode").asText());
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE ROOMS":
 				ArrayNode arrayNodeRooms = mapper.createArrayNode();
@@ -107,6 +127,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "UPDATE ROOMS");
 				msg.putPOJO("rooms", arrayNodeRooms);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				break;
+			case "START MATCH":
+				Room currentRoom = game.getRoom(player.getRoomName());
+				game.startRoomGame(currentRoom);
 				break;
 			default:
 				break;
@@ -126,6 +150,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "REMOVE PLAYER");
 		msg.put("id", player.getPlayerId());
-		game.broadcast(msg.toString());
+		game.broadcastToAll(msg.toString());
 	}
 }

@@ -31,10 +31,6 @@ Spacewar.lobbyState.prototype = {
 function onClickCreate(){
 	let roomName = prompt("Please enter the name of the room:", "JustMonika");
 	let roomMode = prompt("Provisional: Modo de juego", "Classic");
-	game.global.myPlayer.room = {
-		name: roomName,
-		mode: roomMode
-	}
 	//Subir la room
 	let msg = new Object();
 	msg.event = 'CREATE ROOM';
@@ -45,7 +41,6 @@ function onClickCreate(){
 	}
 	console.log(msg.room);
 	game.global.socket.send(JSON.stringify(msg))
-	game.state.start('roomState')
 }
 
 function onClickJoin(){

@@ -149,8 +149,23 @@ window.onload = function() {
 				i+=70;			
 			}
 			break
+		case 'ROOM READY':
+			game.add.button(700, 400, 'bStartMatch', startMatch.bind(this), this)
+			break;
 		case 'START GAME' :
 			game.state.start('gameState')
+			break
+		case 'CREATE ROOM' :
+			if(msg.success){
+				game.global.myPlayer.room = {
+					name: msg.roomName,
+					mode: msg.roomMode
+				}
+				game.state.start('roomState')
+			}else{
+				alert('Esta sala ya existe');
+				onClickCreate();
+			}
 		default :
 			console.dir(msg)
 			break

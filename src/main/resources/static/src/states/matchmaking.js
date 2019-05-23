@@ -22,7 +22,7 @@ Spacewar.matchmakingState.prototype = {
 	},
 
 	create : function() {
-		let bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bCreateRoom', updateRooms, this)
+		let bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
 		/*let roomPrueba = game.add.button(20, 30, 'roomInfo', updateRooms, this)
 		let textPrueba = game.add.text(20, 30, "Modo: " + this.mode + " Nombre: " + this.name 
 			+ "Jugadores: " + this.numPlayers + "Creador: " + this.creator, { font: "bold 10px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });

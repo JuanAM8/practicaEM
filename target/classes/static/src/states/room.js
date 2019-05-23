@@ -21,6 +21,12 @@ Spacewar.roomState.prototype = {
 	},
 
 	update : function() {
-		//game.state.start('gameState')
+		
 	}
+}
+
+function startMatch(){
+	let msg = new Object();
+	msg.event = 'START MATCH';
+	game.global.socket.send(JSON.stringify(msg))
 }

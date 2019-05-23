@@ -35,6 +35,7 @@ public class SpacewarGame {
 	//Pendiente de confirmar
 	private Map<String, Room> rooms = new ConcurrentHashMap<>();
 	private Map<String, String> names = new ConcurrentHashMap<>();
+	private Map<String, String> roomNames = new ConcurrentHashMap<>();
 
 	private SpacewarGame() {
 		
@@ -45,6 +46,15 @@ public class SpacewarGame {
 			return false;
 		}else {
 			names.put(name, name);
+			return true;
+		}
+	}
+
+	public synchronized boolean tryAddRoomName(String name) {
+		if(roomNames.containsKey(name)) {
+			return false;
+		}else {
+			roomNames.put(name, name);
 			return true;
 		}
 	}
@@ -70,7 +80,7 @@ public class SpacewarGame {
 
 		int count = numPlayers.getAndIncrement();
 		if (count == 0) {
-			this.startGameLoop();
+			//this.startGameLoop();
 		}
 	}
 
@@ -88,11 +98,12 @@ public class SpacewarGame {
 	}
 
 	
-	public void startRoomGame(Room r) {
+	public void startRoomGame(Room room) {
+		this.startGameLoop(room);
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "START GAME");
 		try {
-			for(Player player : r.getPlayers()) {
+			for(Player player : room.getPlayers()) {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 			}
 		}catch(Throwable ex) {
@@ -113,9 +124,10 @@ public class SpacewarGame {
 		players.remove(projectile.getId(), projectile);
 	}
 
-	public void startGameLoop() {
+	public void startGameLoop(Room room) {
+		System.out.println("game loop iniciado");
 		scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(() -> tick(), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
+		scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
 
 	public void stopGameLoop() {
@@ -124,7 +136,21 @@ public class SpacewarGame {
 		}
 	}
 
-	public void broadcast(String message) {
+	
+	//Pal chat
+	public void broadcast(String message, Room currentRoom) {
+		for (Player player : currentRoom.getPlayers()) {
+			try {
+				player.getSession().sendMessage(new TextMessage(message.toString()));
+			} catch (Throwable ex) {
+				System.err.println("Execption sending message to player " + player.getSession().getId());
+				ex.printStackTrace(System.err);
+				this.removePlayer(player);
+				//borrar de room tambien
+			}
+		}
+	}
+	public void broadcastToAll(String message) {
 		for (Player player : getPlayers()) {
 			try {
 				player.getSession().sendMessage(new TextMessage(message.toString()));
@@ -136,7 +162,7 @@ public class SpacewarGame {
 		}
 	}
 
-	private void tick() {
+	private void tick(Room currentRoom) {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();
 		ArrayNode arrayNodeProjectiles = mapper.createArrayNode();
@@ -147,7 +173,7 @@ public class SpacewarGame {
 
 		try {
 			// Update players
-			for (Player player : getPlayers()) {
+			for (Player player : currentRoom.getPlayers()) {
 				player.calculateMovement();
 
 				ObjectNode jsonPlayer = mapper.createObjectNode();
@@ -161,11 +187,11 @@ public class SpacewarGame {
 			}
 
 			// Update bullets and handle collision
-			for (Projectile projectile : getProjectiles()) {
+			for (Projectile projectile : currentRoom.getProjectiles()) {
 				projectile.applyVelocity2Position();
 
 				// Handle collision
-				for (Player player : getPlayers()) {
+				for (Player player : currentRoom.getPlayers()) {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
@@ -195,13 +221,13 @@ public class SpacewarGame {
 			}
 
 			if (removeBullets)
-				this.projectiles.keySet().removeAll(bullets2Remove);
+				currentRoom.removeSomeProjectiles(bullets2Remove);
 
 			json.put("event", "GAME STATE UPDATE");
 			json.putPOJO("players", arrayNodePlayers);
 			json.putPOJO("projectiles", arrayNodeProjectiles);
 
-			this.broadcast(json.toString());
+			this.broadcast(json.toString(), currentRoom);
 		} catch (Throwable ex) {
 
 		}
