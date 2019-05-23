@@ -16,6 +16,8 @@ public class Player extends Spaceship {
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
 		this.session = session;
+		this.roomName = "";
+		this.userName = "";
 		this.shipType = this.getRandomShipType();
 	}
 	

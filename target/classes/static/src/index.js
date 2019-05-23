@@ -31,7 +31,7 @@ window.onload = function() {
 			console.log('[DEBUG] WebSocket connection closed.')
 		}
 	}
-	
+	var startButton;
 	//Cuando recibe un mensaje, parsea lo que le llega
 	game.global.socket.onmessage = (message) => {
 		var msg = JSON.parse(message.data)
@@ -50,15 +50,11 @@ window.onload = function() {
 				console.log('[DEBUG] ID assigned to player: ' + game.global.myPlayer.id)
 			}
 			break
-		case 'NEW ROOM' :
-			if (game.global.DEBUG_MODE) {
-				console.log('[DEBUG] NEW ROOM message recieved')
-				console.dir(msg)
-			}
-			//NEW ROOM: Se le asigna la sala al jugador
+		case 'JOIN ROOM' :
 			game.global.myPlayer.room = {
 					name : msg.name,
-					mode: msg.mode
+					mode: msg.mode,
+					creator: false
 			}
 			game.state.start('roomState')
 			break
@@ -150,8 +146,11 @@ window.onload = function() {
 			}
 			break
 		case 'ROOM READY':
-			game.add.button(700, 400, 'bStartMatch', startMatch.bind(this), this)
+			startButton = game.add.button(700, 400, 'bStartMatch', startMatch.bind(this), this)
 			break;
+		case 'ROOM NOT READY':
+			startButton.destroy();
+			break
 		case 'START GAME' :
 			game.state.start('gameState')
 			break
@@ -159,13 +158,19 @@ window.onload = function() {
 			if(msg.success){
 				game.global.myPlayer.room = {
 					name: msg.roomName,
-					mode: msg.roomMode
+					mode: msg.roomMode,
+					creator: true
 				}
 				game.state.start('roomState')
 			}else{
 				alert('Esta sala ya existe');
 				onClickCreate();
 			}
+			break
+		case 'EXIT ROOM':
+			game.state.start("matchmakingState")
+			game.global.myPlayer.room = {}
+			break
 		default :
 			console.dir(msg)
 			break

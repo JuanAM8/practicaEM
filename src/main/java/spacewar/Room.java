@@ -45,6 +45,10 @@ public class Room {
 		players.put(_player.getUserName(), _player);
 	}
 	
+	public void removePlayer(Player _player) {
+		players.remove(_player.getUserName(), _player);
+	}
+	
 	public int getNumberOfPlayers() {
 		return players.size();
 	}	

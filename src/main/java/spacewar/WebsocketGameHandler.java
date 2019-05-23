@@ -61,7 +61,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				auxRoom.addPlayer(player);
 				game.addRoom(auxRoom);
 				
-				msg.put("event", "NEW ROOM");
+				msg.put("event", "JOIN ROOM");
 				//msg.put("room", "GLOBAL");
 				msg.put("name", node.path("name").asText());
 				msg.put("mode", node.path("mode").asText());
@@ -131,6 +131,21 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			case "START MATCH":
 				Room currentRoom = game.getRoom(player.getRoomName());
 				game.startRoomGame(currentRoom);
+				break;
+			case "EXIT ROOM":
+				Room exitedRoom = game.getRoom(player.getRoomName());
+				exitedRoom.removePlayer(player);
+				player.setRoomName("");
+				game.addRoom(exitedRoom);
+				
+				msg.put("event", "EXIT ROOM");
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				
+				if(exitedRoom.getNumberOfPlayers() == 1) {
+					msg.put("event", "ROOM NOT READY");
+					Player exitedCreator = exitedRoom.searchPlayer(exitedRoom.getCreator());
+					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+				}
 				break;
 			default:
 				break;

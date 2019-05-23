@@ -28,6 +28,7 @@ Spacewar.preloadState.prototype = {
 		game.load.image('roomInfo', 'assets/images/sala.png');
 		game.load.image('bUpdateRooms', 'assets/images/recargaSalas.png');
 		game.load.image('bStartMatch', 'assets/images/iniciarPartida.png');
+		game.load.image('bClose', 'assets/images/botonCerrar.png');
 	},
 
 	create : function() {
