@@ -31,7 +31,7 @@ Spacewar.lobbyState.prototype = {
 function onClickCreate(){
 	let roomName = prompt("Please enter the name of the room:", "JustMonika");
 	let roomMode = prompt("Provisional: Modo de juego", "Classic");
-	roomInfo = {
+	game.global.myPlayer.room = {
 		name: roomName,
 		mode: roomMode
 	}

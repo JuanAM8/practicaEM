@@ -57,8 +57,10 @@ window.onload = function() {
 			}
 			//NEW ROOM: Se le asigna la sala al jugador
 			game.global.myPlayer.room = {
-					name : msg.room
+					name : msg.name,
+					mode: msg.mode
 			}
+			game.state.start('roomState')
 			break
 		case 'LOG IN':
 			if(msg.success){
@@ -142,16 +144,8 @@ window.onload = function() {
 			game.global.rooms = [];
 			let i = 0;
 			for (var room of msg.rooms) {
-				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers)
-				//roomie.image = game.add.button(20, 30+i, 'roomInfo', joinRoom(room.name), this)
-				roomie.image = game.add.button(20, 30+i, 'roomInfo', console.log("me pulsaste"), this)
-				roomie.text = game.add.text(20, 50+i, "Modo: " + room.mode + " Nombre: " + room.name 
-				+ " Jugadores: " + room.numPlayers + " Creador: " + room.creator, { font: "bold 20px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
+				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers, i)
 				game.global.rooms.push(roomie)
-				console.log("Nombre sala: " + room.name);				
-				console.log("Creador sala: " + room.creator);
-				console.log("Modo sala: " + room.mode);
-				console.log("NumPersonas sala: " + room.numPlayers);
 				i+=70;			
 			}
 			break

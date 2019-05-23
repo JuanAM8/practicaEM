@@ -46,14 +46,15 @@ function updateRooms(){
 	game.global.socket.send(JSON.stringify(msg))
 }
 
-function joinRoom(_name){
+function joinRoom(_name, _mode){
 	console.log(_name);
 	if (game.global.DEBUG_MODE) {
 		console.log("[DEBUG] Joining room...");
 	}
 	let message = {
 		event : 'JOIN ROOM',
-		name: _name
+		name: _name,
+		mode: _mode
 	};
 	game.global.socket.send(JSON.stringify(message));
 }

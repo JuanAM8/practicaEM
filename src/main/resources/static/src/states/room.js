@@ -16,7 +16,7 @@ Spacewar.roomState.prototype = {
 
 	create : function() {
 		let bg = game.add.sprite(0, 0, 'background');
-		let infoText = roomInfo.name + "\n" + roomInfo.mode;
+		let infoText = game.global.myPlayer.room.name + "\n" + game.global.myPlayer.room.mode;
 		let roomText = game.add.text(200, 200, infoText, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });			
 	},
 

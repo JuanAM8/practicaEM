@@ -59,8 +59,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				
 				msg.put("event", "NEW ROOM");
 				//msg.put("room", "GLOBAL");
-				System.out.println(node.path("name").asText());
-				msg.put("room", node.path("name").asText());
+				msg.put("name", node.path("name").asText());
+				msg.put("mode", node.path("mode").asText());
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
