@@ -155,7 +155,11 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					room = game.getRoom(player.getRoomName());
 					room.removePlayer(player);
 					player.setRoomName("");
-					game.addRoom(room);
+					if(room.getNumberOfPlayers() == 0) {
+						game.removeRoom(room);
+					}else {
+						game.addRoom(room);
+					}
 					
 					msg.put("event", "PLAYER EXITED");
 					msg.put("playerid", player.getPlayerId());

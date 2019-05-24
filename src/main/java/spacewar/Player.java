@@ -14,6 +14,7 @@ public class Player extends Spaceship {
 	private String roomName;
 	private int life;
 	private boolean dead;
+	private int score;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
@@ -23,6 +24,7 @@ public class Player extends Spaceship {
 		this.shipType = this.getRandomShipType();
 		this.life = 10;
 		this.dead = false;
+		this.score = 0;
 	}
 	
 	public void setUserName(String _userName) {
@@ -81,5 +83,23 @@ public class Player extends Spaceship {
 
 	public void kill() {
 		this.dead = true;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+	public void incrementScore(int increment) {
+		this.score += increment;
+	}
+	public void resetInGame() {
+		this.life = 10;
+		this.score = 0;
+		this.dead = false;
+		this.setPosition(Math.random() * 1000, Math.random() * 600);
+		this.setFacingAngle(Math.random() * 360);
 	}
 }

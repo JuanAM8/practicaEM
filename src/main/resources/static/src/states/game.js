@@ -4,7 +4,7 @@ Spacewar.gameState = function(game) {
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
 }
-
+var resultsText;
 Spacewar.gameState.prototype = {
 
 	init : function() {
@@ -13,6 +13,7 @@ Spacewar.gameState.prototype = {
 		}
 	},
 	preload : function() {
+		game.global.otherPlayers = [];
 		// We create a procedural starfield background
 		for (var i = 0; i < this.numStars; i++) {
 			let sprite = game.add.sprite(game.world.randomX,
@@ -44,6 +45,7 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
 		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);
 		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
+		game.global.myPlayer.currentScore = game.add.text(100,0, game.global.myPlayer.score, style);
 		//Solo cliente
 		game.global.remainingAmmo = game.add.text(0, 0, game.global.proyectiles.length, style);
 		
@@ -121,10 +123,14 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 		//Solo cliente
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
-		game.global.remainingAmmo = game.add.text(0, 0, game.global.proyectiles.length, style);
+		game.global.remainingAmmo.setText(''+game.global.proyectiles.length);
+		game.global.myPlayer.currentScore.setText(''+game.global.myPlayer.score);
+		
 		
 		//Falta propulsor		
-		
+		if (typeof resultsText !== 'undefined'){
+			resultsText.setText('has ganado \nPuntuacion: ' + game.global.myPlayer.score);
+		}
 	}
 }
 
@@ -136,6 +142,6 @@ function exitGame(){
 
 function showResults(){
 	var resultsImage = game.add.image(0, 0, 'results');
-	var resultsText = game.add.text(0,30, 'has ganado', { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+	resultsText = game.add.text(0,30, 'has ganado \nPuntuacion: ' + game.global.myPlayer.score, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
 	var bReturn = game.add.button(0, 100, 'bReturnToLobby', exitGame.bind(this), this)
 }

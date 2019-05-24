@@ -93,9 +93,9 @@ public class SpacewarGame {
 		players.remove(player.getSession().getId());
 
 		int count = this.numPlayers.decrementAndGet();
-		/*if (count == 0) {
-			this.stopGameLoop();
-		}*/
+		if (count == 0) {
+			//this.stopGameLoop();
+		}
 	}
 
 	public void startRoomGame(Room room) {
@@ -105,6 +105,7 @@ public class SpacewarGame {
 		msg.put("event", "START GAME");
 		try {
 			for (Player player : room.getPlayers()) {
+				player.resetInGame();
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 			}
 		} catch (Throwable ex) {
@@ -203,6 +204,7 @@ public class SpacewarGame {
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
 				jsonPlayer.put("life", player.getLife());
+				jsonPlayer.put("score", player.getScore());
 				jsonPlayer.put("posX", player.getPosX());
 				jsonPlayer.put("posY", player.getPosY());
 				jsonPlayer.put("facingAngle", player.getFacingAngle());
@@ -223,6 +225,7 @@ public class SpacewarGame {
 							// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 							projectile.setHit(true);
 							player.decrementLife(2);
+							projectile.getOwner().incrementScore(100);
 							if (player.getLife() <= 0) {
 								killPlayer(player, currentRoom);
 							}

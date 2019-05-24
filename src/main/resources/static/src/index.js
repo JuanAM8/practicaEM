@@ -84,6 +84,7 @@ window.onload = function() {
 						game.global.myPlayer.image.y = player.posY
 						game.global.myPlayer.image.angle = player.facingAngle
 						game.global.myPlayer.life = player.life
+						game.global.myPlayer.score = player.score
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							//Si los jugadores rivales aun no tiene info, se le mete
@@ -184,6 +185,7 @@ window.onload = function() {
 				game.global.myPlayer.image.destroy();
 				game.global.myPlayer.text.destroy();
 				game.global.myPlayer.lifeText.destroy();
+
 			}else{
 				game.global.otherPlayers[playerid].image.destroy();
 				game.global.otherPlayers[playerid].text.destroy();
