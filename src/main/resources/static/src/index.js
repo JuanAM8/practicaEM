@@ -79,10 +79,11 @@ window.onload = function() {
 			if (typeof game.global.myPlayer.image !== 'undefined') {
 				for (var player of msg.players) {
 					if (game.global.myPlayer.id == player.id) {
-						//SE LE DA AL JUGADOR LOCAL DEL CLIENTE LOS PARAMETROS DE POSICION
+						//SE LE DA AL JUGADOR LOCAL DEL CLIENTE LOS PARAMETROS DE POSICION Y LA VIDA
 						game.global.myPlayer.image.x = player.posX
 						game.global.myPlayer.image.y = player.posY
 						game.global.myPlayer.image.angle = player.facingAngle
+						game.global.myPlayer.life = player.life
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							//Si los jugadores rivales aun no tiene info, se le mete
@@ -90,16 +91,22 @@ window.onload = function() {
 									image : game.add.sprite(player.posX, player.posY, 'spacewar', player.shipType)
 							}
 							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
-							//Asociar nombre para el jugador contrarios
+							//Asociar nombre para los jugadores contrarios
 							game.global.otherPlayers[player.id].text = game.add.text(50, 50, player.userName, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });
 							game.global.otherPlayers[player.id].text.anchor.setTo(0.5, 0.5)
+							//Asociar la vida para los jugadores contrarios
+							game.global.otherPlayers[player.id].lifeText = game.add.text(50, 50, player.life, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });
+							game.global.otherPlayers[player.id].lifeText.anchor.setTo(0.5, 0.5)
 						} else {
 							//Aqui si: Se da a los otros jugadores la posicion
 							game.global.otherPlayers[player.id].image.x = player.posX
 							game.global.otherPlayers[player.id].image.y = player.posY
 							game.global.otherPlayers[player.id].image.angle = player.facingAngle
 							game.global.otherPlayers[player.id].text.x = player.posX
-							game.global.otherPlayers[player.id].text.y = player.posY - 20
+							game.global.otherPlayers[player.id].text.y = player.posY - 35
+							game.global.otherPlayers[player.id].lifeText.setText(''+player.life);
+							game.global.otherPlayers[player.id].lifeText.x = player.posX;
+							game.global.otherPlayers[player.id].lifeText.y = player.posY - 20;
 						}
 					}
 				}
@@ -168,9 +175,17 @@ window.onload = function() {
 			}
 			break
 		case 'EXIT ROOM':
-			game.state.start("matchmakingState")
+			game.state.start("lobbyState")
 			game.global.myPlayer.room = {}
 			break
+		case "PLAYER EXITED":
+			let playerid = msg.playerid;
+			game.global.otherPlayers[playerid].image.destroy();
+			game.global.otherPlayers[playerid].text.destroy();
+			game.global.otherPlayers[playerid].lifeText.destroy();
+			break
+		case 'SHOW RESULTS':
+			showResults();
 		default :
 			console.dir(msg)
 			break

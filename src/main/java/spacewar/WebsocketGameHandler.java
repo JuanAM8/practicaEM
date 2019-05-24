@@ -56,10 +56,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 			case "JOIN ROOM":
 				//añade jugador a la room
-				Room auxRoom = game.getRoom(node.path("name").asText());
+				room = game.getRoom(node.path("name").asText());
 				player.setRoomName(node.path("name").asText());
-				auxRoom.addPlayer(player);
-				game.addRoom(auxRoom);
+				room.addPlayer(player);
+				game.addRoom(room);
 				
 				msg.put("event", "JOIN ROOM");
 				//msg.put("room", "GLOBAL");
@@ -67,10 +67,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("mode", node.path("mode").asText());
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				if (auxRoom.getNumberOfPlayers() == 4) {
-					game.startRoomGame(auxRoom);
-				}else if(auxRoom.getNumberOfPlayers() == 2) {
-					Player auxCreator = auxRoom.searchPlayer(auxRoom.getCreator());
+				if (room.getNumberOfPlayers() == 4) {
+					game.startRoomGame(room);
+				}else if(room.getNumberOfPlayers() == 2) {
+					Player auxCreator = room.searchPlayer(room.getCreator());
 					msg.put("event", "ROOM READY");
 					auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
@@ -82,9 +82,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						node.path("movement").get("rotRight").asBoolean());
 				if (node.path("bullet").asBoolean()) {
 					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
-					Room projRoom = game.getRoom(player.getRoomName());
-					projRoom.addProjectile(projectile.getId(), projectile);
-					game.addRoom(projRoom);
+					room = game.getRoom(player.getRoomName());
+					room.addProjectile(projectile.getId(), projectile);
+					game.addRoom(room);
 				}
 				break;
 			case "LOG IN":
@@ -129,23 +129,41 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "START MATCH":
-				Room currentRoom = game.getRoom(player.getRoomName());
-				game.startRoomGame(currentRoom);
+				room = game.getRoom(player.getRoomName());
+				game.startRoomGame(room);
 				break;
 			case "EXIT ROOM":
-				Room exitedRoom = game.getRoom(player.getRoomName());
-				exitedRoom.removePlayer(player);
+				room = game.getRoom(player.getRoomName());
+				room.removePlayer(player);
 				player.setRoomName("");
-				game.addRoom(exitedRoom);
+				game.addRoom(room);
 				
 				msg.put("event", "EXIT ROOM");
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				
-				if(exitedRoom.getNumberOfPlayers() == 1) {
+				if(room.getNumberOfPlayers() == 1) {
 					msg.put("event", "ROOM NOT READY");
-					Player exitedCreator = exitedRoom.searchPlayer(exitedRoom.getCreator());
+					Player exitedCreator = room.searchPlayer(room.getCreator());
 					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
+				break;
+			case "EXIT GAME":
+				if(player.getRoomName() != "") {
+					room = game.getRoom(player.getRoomName());
+					room.removePlayer(player);
+					player.setRoomName("");
+					game.addRoom(room);
+					
+					msg.put("event", "PLAYER EXITED");
+					msg.put("playerid", player.getPlayerId());
+					game.broadcast(msg.toString(), room);
+				}
+				
+				
+				msg.put("event", "EXIT ROOM");
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				
+				
 				break;
 			default:
 				break;

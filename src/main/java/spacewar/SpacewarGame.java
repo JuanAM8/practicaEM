@@ -1,5 +1,6 @@
 package spacewar;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -161,6 +162,25 @@ public class SpacewarGame {
 			}
 		}
 	}
+	
+	
+	public void killPlayer(Player player, Room room) {
+		room.removePlayer(player);
+		player.setRoomName("");
+		
+		ObjectNode msg = mapper.createObjectNode();
+		
+		msg.put("event", "PLAYER EXITED");
+		msg.put("playerid", player.getPlayerId());
+		broadcast(msg.toString(), room);
+		
+		msg.put("event", "SHOW RESULTS");
+		try {
+			player.getSession().sendMessage(new TextMessage(msg.toString()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void tick(Room currentRoom) {
 		ObjectNode json = mapper.createObjectNode();
@@ -179,6 +199,7 @@ public class SpacewarGame {
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
+				jsonPlayer.put("life", player.getLife());
 				jsonPlayer.put("posX", player.getPosX());
 				jsonPlayer.put("posY", player.getPosY());
 				jsonPlayer.put("facingAngle", player.getFacingAngle());
@@ -195,6 +216,10 @@ public class SpacewarGame {
 					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
 						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 						projectile.setHit(true);
+						player.decrementLife(2);
+						if(player.getLife() <= 0) {
+							killPlayer(player, currentRoom);
+						}
 						break;
 					}
 				}
@@ -222,6 +247,12 @@ public class SpacewarGame {
 
 			if (removeBullets)
 				currentRoom.removeSomeProjectiles(bullets2Remove);
+			
+			if(currentRoom.getNumberOfPlayers()==1) {
+				for (Player player : currentRoom.getPlayers()) {
+					killPlayer(player, currentRoom);
+				}
+			}
 
 			json.put("event", "GAME STATE UPDATE");
 			json.putPOJO("players", arrayNodePlayers);

@@ -42,7 +42,6 @@ Spacewar.gameState.prototype = {
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 		game.global.myPlayer.text = game.add.text(50, 50, game.global.myPlayer.userName, style);
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
-		game.global.myPlayer.life = 10;
 		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);
 		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
 		//Solo cliente
@@ -80,6 +79,9 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
 		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 
+		//Boton salir de partida
+		game.add.button(800, 0, 'bClose', exitGame.bind(this), this)
+
 	},
 
 	update : function() {
@@ -114,6 +116,7 @@ Spacewar.gameState.prototype = {
 		//Debe mostrarse para todos
 		game.global.myPlayer.text.x = game.global.myPlayer.image.x;
 		game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
+		game.global.myPlayer.lifeText.setText(''+game.global.myPlayer.life);
 		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
 		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 		//Solo cliente
@@ -123,4 +126,16 @@ Spacewar.gameState.prototype = {
 		//Falta propulsor		
 		
 	}
+}
+
+function exitGame(){
+	let msg = new Object();
+	msg.event = 'EXIT GAME';
+	game.global.socket.send(JSON.stringify(msg))
+}
+
+function showResults(){
+	var resultsImage = game.add.image(0, 0, 'results');
+	var resultsText = game.add.text(0,30, 'has ganado', { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+	var bReturn = game.add.button(0, 100, 'bReturnToLobby', exitGame.bind(this), this)
 }
