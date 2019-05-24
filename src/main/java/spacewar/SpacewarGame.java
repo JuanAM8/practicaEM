@@ -93,9 +93,9 @@ public class SpacewarGame {
 		players.remove(player.getSession().getId());
 
 		int count = this.numPlayers.decrementAndGet();
-		if (count == 0) {
+		/*if (count == 0) {
 			this.stopGameLoop();
-		}
+		}*/
 	}
 
 	public void startRoomGame(Room room) {
@@ -128,12 +128,12 @@ public class SpacewarGame {
 	public void startGameLoop(Room room) {
 		System.out.println("game loop iniciado");
 		scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
+		room.scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
 
-	public void stopGameLoop() {
-		if (scheduler != null) {
-			scheduler.shutdown();
+	public void stopGameLoop(Room room) {
+		if (room.scheduler != null) {
+			room.scheduler.shutdown();
 		}
 	}
 
@@ -182,6 +182,10 @@ public class SpacewarGame {
 	}
 
 	private void tick(Room currentRoom) {
+		if(currentRoom.getNumberOfPlayers() == 0) {
+			stopGameLoop(currentRoom);
+			removeRoom(currentRoom);
+		}
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();
 		ArrayNode arrayNodeProjectiles = mapper.createArrayNode();

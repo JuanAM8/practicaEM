@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Room {
@@ -16,6 +18,7 @@ public class Room {
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private int alivePlayers;
+	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	
 	public Room(String name, String creator, String mode) {
 		this.name = name;
