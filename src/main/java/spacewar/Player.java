@@ -13,6 +13,7 @@ public class Player extends Spaceship {
 	private String userName;
 	private String roomName;
 	private int life;
+	private boolean dead;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
@@ -21,7 +22,7 @@ public class Player extends Spaceship {
 		this.userName = "";
 		this.shipType = this.getRandomShipType();
 		this.life = 10;
-		
+		this.dead = false;
 	}
 	
 	public void setUserName(String _userName) {
@@ -72,5 +73,13 @@ public class Player extends Spaceship {
 	}
 	public void decrementLife(int decrement) {
 		this.life -= decrement;
+	}
+
+	public boolean isDead() {
+		return dead;
+	}
+
+	public void kill() {
+		this.dead = true;
 	}
 }

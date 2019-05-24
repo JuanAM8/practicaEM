@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Room {
 
@@ -14,11 +15,13 @@ public class Room {
 	private final String mode;
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
+	private int alivePlayers;
 	
 	public Room(String name, String creator, String mode) {
 		this.name = name;
 		this.creator = creator;
 		this.mode = mode;
+		this.alivePlayers = 0;
 	}
 
 	public String getName() {
@@ -67,5 +70,17 @@ public class Room {
 	
 	public void removeSomeProjectiles(Set<Integer> bullets2Remove) {
 		projectiles.keySet().removeAll(bullets2Remove);
+	}
+
+	public int getAlivePlayers() {
+		return alivePlayers;
+	}
+
+	public void setAlivePlayers(int alivePlayers) {
+		this.alivePlayers = alivePlayers;
+	}
+	
+	public void decrementAlivePlayers() {
+		this.alivePlayers--;
 	}
 }

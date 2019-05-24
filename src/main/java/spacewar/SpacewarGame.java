@@ -33,45 +33,45 @@ public class SpacewarGame {
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
-	//Pendiente de confirmar
+	// Pendiente de confirmar
 	private Map<String, Room> rooms = new ConcurrentHashMap<>();
 	private Map<String, String> names = new ConcurrentHashMap<>();
 	private Map<String, String> roomNames = new ConcurrentHashMap<>();
 
 	private SpacewarGame() {
-		
+
 	}
-	
+
 	public synchronized boolean tryAddName(String name) {
-		if(names.containsKey(name)) {
+		if (names.containsKey(name)) {
 			return false;
-		}else {
+		} else {
 			names.put(name, name);
 			return true;
 		}
 	}
 
 	public synchronized boolean tryAddRoomName(String name) {
-		if(roomNames.containsKey(name)) {
+		if (roomNames.containsKey(name)) {
 			return false;
-		}else {
+		} else {
 			roomNames.put(name, name);
 			return true;
 		}
 	}
-	
+
 	public void addRoom(Room room) {
 		rooms.put(room.getName(), room);
 	}
-	
+
 	public Collection<Room> getRooms() {
 		return rooms.values();
 	}
-	
+
 	public Room getRoom(String key) {
 		return rooms.get(key);
 	}
-	
+
 	public void removeRoom(Room room) {
 		rooms.remove(room.getName());
 	}
@@ -81,7 +81,7 @@ public class SpacewarGame {
 
 		int count = numPlayers.getAndIncrement();
 		if (count == 0) {
-			//this.startGameLoop();
+			// this.startGameLoop();
 		}
 	}
 
@@ -98,21 +98,21 @@ public class SpacewarGame {
 		}
 	}
 
-	
 	public void startRoomGame(Room room) {
+		room.setAlivePlayers(room.getNumberOfPlayers());
 		this.startGameLoop(room);
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "START GAME");
 		try {
-			for(Player player : room.getPlayers()) {
+			for (Player player : room.getPlayers()) {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 			}
-		}catch(Throwable ex) {
-			
+		} catch (Throwable ex) {
+
 		}
-		
+
 	}
-	
+
 	public void addProjectile(int id, Projectile projectile) {
 		projectiles.put(id, projectile);
 	}
@@ -137,8 +137,7 @@ public class SpacewarGame {
 		}
 	}
 
-	
-	//Pal chat
+	// Pal chat
 	public void broadcast(String message, Room currentRoom) {
 		for (Player player : currentRoom.getPlayers()) {
 			try {
@@ -147,10 +146,11 @@ public class SpacewarGame {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
 				this.removePlayer(player);
-				//borrar de room tambien
+				// borrar de room tambien
 			}
 		}
 	}
+
 	public void broadcastToAll(String message) {
 		for (Player player : getPlayers()) {
 			try {
@@ -162,18 +162,17 @@ public class SpacewarGame {
 			}
 		}
 	}
-	
-	
+
 	public void killPlayer(Player player, Room room) {
-		room.removePlayer(player);
-		player.setRoomName("");
+		player.kill();
+		room.decrementAlivePlayers();
 		
 		ObjectNode msg = mapper.createObjectNode();
-		
+
 		msg.put("event", "PLAYER EXITED");
 		msg.put("playerid", player.getPlayerId());
 		broadcast(msg.toString(), room);
-		
+
 		msg.put("event", "SHOW RESULTS");
 		try {
 			player.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -204,6 +203,7 @@ public class SpacewarGame {
 				jsonPlayer.put("posY", player.getPosY());
 				jsonPlayer.put("facingAngle", player.getFacingAngle());
 				jsonPlayer.put("userName", player.getUserName());
+				jsonPlayer.put("isDead", player.isDead());
 				arrayNodePlayers.addPOJO(jsonPlayer);
 			}
 
@@ -213,14 +213,18 @@ public class SpacewarGame {
 
 				// Handle collision
 				for (Player player : currentRoom.getPlayers()) {
-					if ((projectile.getOwner().getPlayerId() != player.getPlayerId()) && player.intersect(projectile)) {
-						// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
-						projectile.setHit(true);
-						player.decrementLife(2);
-						if(player.getLife() <= 0) {
-							killPlayer(player, currentRoom);
+					if (!player.isDead()) {
+						if ((projectile.getOwner().getPlayerId() != player.getPlayerId())
+								&& player.intersect(projectile)) {
+							// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
+							projectile.setHit(true);
+							player.decrementLife(2);
+							if (player.getLife() <= 0) {
+								killPlayer(player, currentRoom);
+							}
+							break;
 						}
-						break;
+
 					}
 				}
 
@@ -247,10 +251,12 @@ public class SpacewarGame {
 
 			if (removeBullets)
 				currentRoom.removeSomeProjectiles(bullets2Remove);
-			
-			if(currentRoom.getNumberOfPlayers()==1) {
+
+			if (currentRoom.getAlivePlayers() == 1) {
 				for (Player player : currentRoom.getPlayers()) {
-					killPlayer(player, currentRoom);
+					if(!player.isDead()) {
+						killPlayer(player, currentRoom);
+					}
 				}
 			}
 

@@ -180,9 +180,16 @@ window.onload = function() {
 			break
 		case "PLAYER EXITED":
 			let playerid = msg.playerid;
-			game.global.otherPlayers[playerid].image.destroy();
-			game.global.otherPlayers[playerid].text.destroy();
-			game.global.otherPlayers[playerid].lifeText.destroy();
+			if (game.global.myPlayer.id == playerid) {
+				game.global.myPlayer.image.destroy();
+				game.global.myPlayer.text.destroy();
+				game.global.myPlayer.lifeText.destroy();
+			}else{
+				game.global.otherPlayers[playerid].image.destroy();
+				game.global.otherPlayers[playerid].text.destroy();
+				game.global.otherPlayers[playerid].lifeText.destroy();
+			}
+			
 			break
 		case 'SHOW RESULTS':
 			showResults();
