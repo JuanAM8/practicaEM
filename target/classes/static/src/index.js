@@ -51,7 +51,6 @@ window.onload = function() {
 			}
 			break
 		case 'JOIN ROOM' :
-			
 			if(msg.hasEntered){
 				game.global.myPlayer.room = {
 					name : msg.name,
@@ -69,8 +68,6 @@ window.onload = function() {
 					joinRoom(msg.name, msg.mode);
 				}
 			}
-			
-			
 			break
 		case 'LOG IN':
 			if(msg.success){

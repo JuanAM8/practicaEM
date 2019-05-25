@@ -71,7 +71,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "JOIN ROOM");
 				//msg.put("room", "GLOBAL");
 				msg.put("name", node.path("name").asText());
-				msg.put("mode", node.path("mode").asText());
+				msg.put("mode", node.path("mode").asInt());
 				msg.put("inGame", room.isInGame());
 				msg.put("hasEntered", hasEntered);
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
@@ -113,7 +113,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				boolean successRoom = game.tryAddRoomName(node.path("room").get("name").asText());
 				if (successRoom) {
 					room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
-							node.path("room").get("mode").asText());
+							node.path("room").get("mode").asInt());
 					player.setRoomName(node.path("room").get("name").asText());
 					room.addPlayer(player);
 					
@@ -122,7 +122,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "CREATE ROOM");
 				msg.put("success", successRoom);
 				msg.put("roomName", node.path("room").get("name").asText());
-				msg.put("roomMode", node.path("room").get("mode").asText());
+				msg.put("roomMode", node.path("room").get("mode").asInt());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE ROOMS":

@@ -16,7 +16,8 @@ Spacewar.roomState.prototype = {
 
 	create : function() {
 		let bg = game.add.sprite(0, 0, 'background');
-		let infoText = game.global.myPlayer.room.name + "\n" + game.global.myPlayer.room.mode;
+		let modeName = parseMode(game.global.myPlayer.room.mode);
+		let infoText = game.global.myPlayer.room.name + "\n" + modeName;
 		let roomText = game.add.text(200, 200, infoText, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });
 		if(!game.global.myPlayer.room.creator){
 			game.add.button(800, 0, 'bClose', exitRoom.bind(this), this)
@@ -25,6 +26,16 @@ Spacewar.roomState.prototype = {
 
 	update : function() {
 		
+	}
+}
+
+function parseMode(mode){
+	if (mode === 0){
+		return '1 vs 1';
+	}else if (mode === 1){
+		return 'Battle Royale'
+	}else{
+		return 'tu eres tonto'
 	}
 }
 

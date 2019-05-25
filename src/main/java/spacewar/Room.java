@@ -14,14 +14,14 @@ public class Room {
 
 	private final String name;
 	private final String creator;
-	private final String mode;
+	private final int mode;
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean inGame;
 	
-	public Room(String name, String creator, String mode) {
+	public Room(String name, String creator, int mode) {
 		this.name = name;
 		this.creator = creator;
 		this.mode = mode;
@@ -37,7 +37,7 @@ public class Room {
 		return creator;
 	}
 
-	public String getMode() {
+	public int getMode() {
 		return mode;
 	}
 	
