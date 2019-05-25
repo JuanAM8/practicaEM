@@ -56,24 +56,36 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 			case "JOIN ROOM":
 				//añade jugador a la room
+				boolean hasEntered = false;
 				room = game.getRoom(node.path("name").asText());
-				player.setRoomName(node.path("name").asText());
-				room.addPlayer(player);
-				game.addRoom(room);
-				
+				if (room.getNumberOfPlayers() < 4 && room.getAlivePlayers() != 0) {
+					hasEntered = true;
+					player.resetInGame();
+					player.setRoomName(node.path("name").asText());
+					room.addPlayer(player);
+					if(room.isInGame()) {
+						room.incrementAlivePlayers();
+					}
+					game.addRoom(room);
+				}				
 				msg.put("event", "JOIN ROOM");
 				//msg.put("room", "GLOBAL");
 				msg.put("name", node.path("name").asText());
 				msg.put("mode", node.path("mode").asText());
+				msg.put("inGame", room.isInGame());
+				msg.put("hasEntered", hasEntered);
 				//Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				if (room.getNumberOfPlayers() == 4) {
-					game.startRoomGame(room);
-				}else if(room.getNumberOfPlayers() == 2) {
-					Player auxCreator = room.searchPlayer(room.getCreator());
-					msg.put("event", "ROOM READY");
-					auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+				if (room.getAlivePlayers() == -1 && hasEntered) {
+					if (room.getNumberOfPlayers() == 4) {
+						game.startRoomGame(room);
+					}else if(room.getNumberOfPlayers() == 2) {
+						Player auxCreator = room.searchPlayer(room.getCreator());
+						msg.put("event", "ROOM READY");
+						auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+					}
 				}
+				
 				break;
 			case "UPDATE MOVEMENT":
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),

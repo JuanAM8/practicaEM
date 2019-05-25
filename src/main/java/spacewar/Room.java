@@ -19,12 +19,14 @@ public class Room {
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private boolean inGame;
 	
 	public Room(String name, String creator, String mode) {
 		this.name = name;
 		this.creator = creator;
 		this.mode = mode;
-		this.alivePlayers = 0;
+		this.alivePlayers = -1;
+		this.inGame = false;
 	}
 
 	public String getName() {
@@ -85,5 +87,17 @@ public class Room {
 	
 	public void decrementAlivePlayers() {
 		this.alivePlayers--;
+	}
+	
+	public void incrementAlivePlayers() {
+		this.alivePlayers++;
+	}
+
+	public boolean isInGame() {
+		return inGame;
+	}
+
+	public void setInGame(boolean inGame) {
+		this.inGame = inGame;
 	}
 }

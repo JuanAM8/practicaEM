@@ -51,12 +51,23 @@ window.onload = function() {
 			}
 			break
 		case 'JOIN ROOM' :
-			game.global.myPlayer.room = {
+			if(msg.hasEntered){
+				game.global.myPlayer.room = {
 					name : msg.name,
 					mode: msg.mode,
 					creator: false
+				}
+				if (msg.inGame){
+					game.state.start('gameState')
+				}else{
+					game.state.start('roomState')
+				}
+			}else{
+				let answer = confirm('te has pasao bacalao, volver a probar??')
+				if (answer){
+					joinRoom(msg.name, msg.mode);
+				}
 			}
-			game.state.start('roomState')
 			break
 		case 'LOG IN':
 			if(msg.success){

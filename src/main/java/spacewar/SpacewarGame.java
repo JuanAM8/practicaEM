@@ -74,6 +74,7 @@ public class SpacewarGame {
 
 	public void removeRoom(Room room) {
 		rooms.remove(room.getName());
+		roomNames.remove(room.getName());
 	}
 
 	public void addPlayer(Player player) {
@@ -100,12 +101,12 @@ public class SpacewarGame {
 
 	public void startRoomGame(Room room) {
 		room.setAlivePlayers(room.getNumberOfPlayers());
+		room.setInGame(true);
 		this.startGameLoop(room);
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "START GAME");
 		try {
 			for (Player player : room.getPlayers()) {
-				player.resetInGame();
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 			}
 		} catch (Throwable ex) {
@@ -259,12 +260,13 @@ public class SpacewarGame {
 			if (removeBullets)
 				currentRoom.removeSomeProjectiles(bullets2Remove);
 
-			if (currentRoom.getAlivePlayers() == 1) {
+			if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
 				for (Player player : currentRoom.getPlayers()) {
 					if(!player.isDead()) {
 						killPlayer(player, currentRoom);
 					}
 				}
+				currentRoom.setInGame(false);
 			}
 
 			json.put("event", "GAME STATE UPDATE");
