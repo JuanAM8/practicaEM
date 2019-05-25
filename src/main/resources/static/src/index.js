@@ -210,6 +210,7 @@ window.onload = function() {
 			break
 		case 'SHOW RESULTS':
 			showResults();
+			break;
 		case 'MATCHMAKING':
 			if(msg.mode != -1){
 				joinRoom(msg.name, msg.mode);
@@ -217,6 +218,11 @@ window.onload = function() {
 				alert('No se encontró ninguna sala, espera unos instantes y vuelve a intentarlo.');
 			}
 			break;
+		case 'HALL OF FAME':
+			for(var playerScore of msg.hall){
+				console.log(playerScore.name + " : " + playerScore.score);
+			}
+			break
 		default :
 			console.dir(msg)
 			break

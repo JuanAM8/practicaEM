@@ -204,7 +204,18 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "HALL OF FAME":
-				
+				ArrayNode arrayNodeHall = mapper.createArrayNode();
+				for (Entry<String, Integer> entry : game.savedScores.entrySet()) {
+					ObjectNode jsonHall = mapper.createObjectNode();
+					jsonHall.put("name", entry.getKey());
+					jsonHall.put("score", entry.getValue());
+					arrayNodeHall.addPOJO(jsonHall);
+					System.out.println(entry.getKey());
+					System.out.println(entry.getKey());
+				}
+				msg.put("event", "HALL OF FAME");
+				msg.putPOJO("hall", arrayNodeHall);
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			default:
 				break;
