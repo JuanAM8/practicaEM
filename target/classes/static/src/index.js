@@ -156,6 +156,10 @@ window.onload = function() {
 			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
 		case 'UPDATE ROOMS' :
+			for(var j = 0; j < game.global.rooms.length; j++){
+				game.global.rooms[j].image.destroy();
+				game.global.rooms[j].text.destroy();
+			}
 			game.global.rooms = [];
 			let i = 0;
 			for (var room of msg.rooms) {
@@ -206,6 +210,13 @@ window.onload = function() {
 			break
 		case 'SHOW RESULTS':
 			showResults();
+		case 'MATCHMAKING':
+			if(msg.mode != -1){
+				joinRoom(msg.name, msg.mode);
+			}else{
+				alert('No se encontró ninguna sala, espera unos instantes y vuelve a intentarlo.');
+			}
+			break;
 		default :
 			console.dir(msg)
 			break

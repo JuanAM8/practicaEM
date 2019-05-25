@@ -1,6 +1,14 @@
 package spacewar;
 
-import java.util.Collection;
+//import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+//import java.io.FileWriter;
+//import java.io.IOException;
+import java.util.Map;
+//import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.web.socket.CloseStatus;
@@ -20,23 +28,30 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	private ObjectMapper mapper = new ObjectMapper();
 	private AtomicInteger playerId = new AtomicInteger(0);
 	private AtomicInteger projectileId = new AtomicInteger(0);
+	private Map<String, Integer> savedScores = readFile();
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		//Crea nuevo objeto jugador
+		// Crea nuevo objeto jugador
 		Player player = new Player(playerId.incrementAndGet(), session);
 		session.getAttributes().put(PLAYER_ATTRIBUTE, player);
-		
-		//Envia esta informacion al cliente js
+
+		// Envia esta informacion al cliente js
 		ObjectNode msg = mapper.createObjectNode();
 		msg.put("event", "JOIN");
 		msg.put("id", player.getPlayerId());
 		msg.put("shipType", player.getShipType());
-		
+
 		player.getSession().sendMessage(new TextMessage(msg.toString()));
-		
-		//Añade al jugador a la lista de jugadores del juego
+
+		// Añade al jugador a la lista de jugadores del juego
 		game.addPlayer(player);
+		
+		
+		//
+		savedScores.put("juan", 3000);
+		savedScores.put("hulio", 0);
+		//writeFile(savedScores);
 	}
 
 	@Override
@@ -46,7 +61,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			ObjectNode msg = mapper.createObjectNode();
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 			Room room;
-			
+
 			switch (node.get("event").asText()) {
 			case "JOIN":
 				msg.put("event", "JOIN");
@@ -55,7 +70,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "JOIN ROOM":
-				//añade jugador a la room
+				// añade jugador a la room
 				boolean hasEntered = false;
 				room = game.getRoom(node.path("name").asText());
 				if (room.getNumberOfPlayers() < 4 && room.getAlivePlayers() != 0) {
@@ -63,29 +78,29 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					player.resetInGame();
 					player.setRoomName(node.path("name").asText());
 					room.addPlayer(player);
-					if(room.isInGame()) {
+					if (room.isInGame()) {
 						room.incrementAlivePlayers();
 					}
 					game.addRoom(room);
-				}				
+				}
 				msg.put("event", "JOIN ROOM");
-				//msg.put("room", "GLOBAL");
+				// msg.put("room", "GLOBAL");
 				msg.put("name", node.path("name").asText());
 				msg.put("mode", node.path("mode").asInt());
 				msg.put("inGame", room.isInGame());
 				msg.put("hasEntered", hasEntered);
-				//Busca la Room con ese nombre y mete al jugador en dicha room.
+				// Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				if (room.getAlivePlayers() == -1 && hasEntered) {
 					if (room.getNumberOfPlayers() == 4) {
 						game.startRoomGame(room);
-					}else if(room.getNumberOfPlayers() == 2) {
+					} else if (room.getNumberOfPlayers() == 2) {
 						Player auxCreator = room.searchPlayer(room.getCreator());
 						msg.put("event", "ROOM READY");
 						auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
 					}
 				}
-				
+
 				break;
 			case "UPDATE MOVEMENT":
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),
@@ -107,7 +122,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "LOG IN");
 				msg.put("success", success);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				
+
 				break;
 			case "CREATE ROOM":
 				boolean successRoom = game.tryAddRoomName(node.path("room").get("name").asText());
@@ -116,7 +131,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 							node.path("room").get("mode").asInt());
 					player.setRoomName(node.path("room").get("name").asText());
 					room.addPlayer(player);
-					
+
 					game.addRoom(room);
 				}
 				msg.put("event", "CREATE ROOM");
@@ -148,41 +163,46 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				room = game.getRoom(player.getRoomName());
 				room.removePlayer(player);
 				player.setRoomName("");
-				if(room.getNumberOfPlayers() == 0) {
+				if (room.getNumberOfPlayers() == 0) {
 					game.removeRoom(room);
-				}else {
+				} else {
 					game.addRoom(room);
 				}
 				msg.put("event", "EXIT ROOM");
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				
-				if(room.getNumberOfPlayers() == 1) {
+
+				if (room.getNumberOfPlayers() == 1) {
 					msg.put("event", "ROOM NOT READY");
 					Player exitedCreator = room.searchPlayer(room.getCreator());
 					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
 				break;
 			case "EXIT GAME":
-				if(player.getRoomName() != "") {
+				if (player.getRoomName() != "") {
 					room = game.getRoom(player.getRoomName());
 					room.removePlayer(player);
 					player.setRoomName("");
-					if(room.getNumberOfPlayers() == 0) {
+					if (room.getNumberOfPlayers() == 0) {
 						game.removeRoom(room);
-					}else {
+					} else {
 						game.addRoom(room);
 					}
-					
+
 					msg.put("event", "PLAYER EXITED");
 					msg.put("playerid", player.getPlayerId());
 					game.broadcast(msg.toString(), room);
 				}
-				
-				
+
 				msg.put("event", "EXIT ROOM");
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				
-				
+
+				break;
+			case "MATCHMAKING":
+				Room roomFound = game.matchmaking(node.get("mode").asInt(), player.getTotalScore());
+				msg.put("event", "MATCHMAKING");
+				msg.put("mode", roomFound.getMode());
+				msg.put("name", roomFound.getName());
+				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			default:
 				break;
@@ -204,4 +224,40 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		msg.put("id", player.getPlayerId());
 		game.broadcastToAll(msg.toString());
 	}
+
+	// fuente:
+	// https://stackoverflow.com/questions/50142413/displaying-5-top-scores-from-txt-file-java
+	// fuente 2: https://stackabuse.com/reading-a-file-line-by-line-in-java/
+	private Map<String, Integer> readFile() {
+		Map<String, Integer> map = new ConcurrentHashMap<>();
+		try {
+			Scanner scanner = new Scanner(new File("scores.txt"));
+			while (scanner.hasNextLine()) {
+				String scoreLine = scanner.nextLine();
+				String[] scoreString = scoreLine.split(":");
+				String key = scoreString[0];
+				int value = Integer.parseInt(scoreString[1]);
+				map.put(key, value);
+			}
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+/*
+	private void writeFile(Map<String, Integer> map) {
+		try {
+			FileWriter fw = new FileWriter("scoresPrueba.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (Entry<String, Integer> entry : map.entrySet()) {
+				bw.write(entry.getKey() + ":" + entry.getValue());
+				bw.newLine();
+			}
+			bw.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	*/
 }

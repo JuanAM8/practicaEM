@@ -20,6 +20,7 @@ public class Room {
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean inGame;
+	private int avgScore;//para la dificultad
 	
 	public Room(String name, String creator, int mode) {
 		this.name = name;
@@ -27,6 +28,7 @@ public class Room {
 		this.mode = mode;
 		this.alivePlayers = -1;
 		this.inGame = false;
+		computeAvgScore();
 	}
 
 	public String getName() {
@@ -99,5 +101,25 @@ public class Room {
 
 	public void setInGame(boolean inGame) {
 		this.inGame = inGame;
+	}
+
+	public int getAvgScore() {
+		return avgScore;
+	}
+
+	public void setAvgScore(int avgScore) {
+		this.avgScore = avgScore;
+	}
+	
+	public void computeAvgScore() {
+		int sum = 0;
+		for (Player player : this.players.values()) {
+			sum += player.getTotalScore();
+		}
+		if(getNumberOfPlayers() != 0) {
+			this.avgScore = sum/getNumberOfPlayers();
+		}else {
+			this.avgScore = 0;
+		}
 	}
 }

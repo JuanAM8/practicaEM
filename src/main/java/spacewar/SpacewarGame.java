@@ -182,6 +182,18 @@ public class SpacewarGame {
 			e.printStackTrace();
 		}
 	}
+	
+	public Room matchmaking(int modeId, int score) {
+		int minDist = 999999999;
+		Room bestRoom = new Room("dummy", "monika", -1);
+		for(Room room : getRooms()) {
+			if(room.getMode() == modeId && room.getNumberOfPlayers() < 4 && Math.abs(score - room.getAvgScore()) < minDist){
+				minDist = Math.abs(score - room.getAvgScore());
+				bestRoom = room;
+			}
+		}
+		return bestRoom;
+	}
 
 	private void tick(Room currentRoom) {
 		if(currentRoom.getNumberOfPlayers() == 0) {
