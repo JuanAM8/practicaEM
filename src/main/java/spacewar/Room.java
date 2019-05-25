@@ -53,10 +53,12 @@ public class Room {
 	
 	public void addPlayer(Player _player) {
 		players.put(_player.getUserName(), _player);
+		computeAvgScore();
 	}
 	
 	public void removePlayer(Player _player) {
 		players.remove(_player.getUserName(), _player);
+		computeAvgScore();
 	}
 	
 	public int getNumberOfPlayers() {
@@ -117,7 +119,7 @@ public class Room {
 			sum += player.getTotalScore();
 		}
 		if(getNumberOfPlayers() != 0) {
-			this.avgScore = sum/getNumberOfPlayers();
+			this.avgScore = Math.round(sum/getNumberOfPlayers());
 		}else {
 			this.avgScore = 0;
 		}

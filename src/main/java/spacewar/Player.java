@@ -112,4 +112,10 @@ public class Player extends Spaceship {
 	public void setTotalScore(int totalScore) {
 		this.totalScore = totalScore;
 	}
+	public void incrementTotalScore(int increment) {
+		this.totalScore += increment;
+		if(this.totalScore > 9999999) {
+			this.totalScore = 9999999;
+		}
+	}
 }

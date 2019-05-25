@@ -1,12 +1,12 @@
 package spacewar;
 
-//import java.io.BufferedWriter;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-//import java.io.FileWriter;
-//import java.io.IOException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
-//import java.util.Map.Entry;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +28,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	private ObjectMapper mapper = new ObjectMapper();
 	private AtomicInteger playerId = new AtomicInteger(0);
 	private AtomicInteger projectileId = new AtomicInteger(0);
-	private Map<String, Integer> savedScores = readFile();
+
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -46,12 +46,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 		// Añade al jugador a la lista de jugadores del juego
 		game.addPlayer(player);
-		
-		
-		//
-		savedScores.put("juan", 3000);
-		savedScores.put("hulio", 0);
-		//writeFile(savedScores);
 	}
 
 	@Override
@@ -118,6 +112,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				boolean success = game.tryAddName(node.path("userName").asText());
 				if (success) {
 					player.setUserName(node.path("userName").asText());
+					if(game.savedScores.containsKey(player.getUserName())) {
+						player.setTotalScore(game.savedScores.get(player.getUserName()));
+					}
 				}
 				msg.put("event", "LOG IN");
 				msg.put("success", success);
@@ -130,6 +127,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
 							node.path("room").get("mode").asInt());
 					player.setRoomName(node.path("room").get("name").asText());
+					player.resetInGame();
 					room.addPlayer(player);
 
 					game.addRoom(room);
@@ -149,6 +147,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					jsonRoom.put("name", nRoom.getName());
 					jsonRoom.put("mode", nRoom.getMode());
 					jsonRoom.put("numPlayers", nRoom.getNumberOfPlayers());
+					jsonRoom.put("avgScore", nRoom.getAvgScore());
 					arrayNodeRooms.addPOJO(jsonRoom);
 				}
 				msg.put("event", "UPDATE ROOMS");
@@ -204,6 +203,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("name", roomFound.getName());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
+			case "HALL OF FAME":
+				
+				break;
 			default:
 				break;
 			}
@@ -225,39 +227,5 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		game.broadcastToAll(msg.toString());
 	}
 
-	// fuente:
-	// https://stackoverflow.com/questions/50142413/displaying-5-top-scores-from-txt-file-java
-	// fuente 2: https://stackabuse.com/reading-a-file-line-by-line-in-java/
-	private Map<String, Integer> readFile() {
-		Map<String, Integer> map = new ConcurrentHashMap<>();
-		try {
-			Scanner scanner = new Scanner(new File("scores.txt"));
-			while (scanner.hasNextLine()) {
-				String scoreLine = scanner.nextLine();
-				String[] scoreString = scoreLine.split(":");
-				String key = scoreString[0];
-				int value = Integer.parseInt(scoreString[1]);
-				map.put(key, value);
-			}
-			scanner.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return map;
-	}
-/*
-	private void writeFile(Map<String, Integer> map) {
-		try {
-			FileWriter fw = new FileWriter("scoresPrueba.txt");
-			BufferedWriter bw = new BufferedWriter(fw);
-			for (Entry<String, Integer> entry : map.entrySet()) {
-				bw.write(entry.getKey() + ":" + entry.getValue());
-				bw.newLine();
-			}
-			bw.close();
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-	}
-	*/
+	
 }

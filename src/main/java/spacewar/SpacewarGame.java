@@ -1,10 +1,16 @@
 package spacewar;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +33,6 @@ public class SpacewarGame {
 	public final static boolean VERBOSE_MODE = true;
 
 	ObjectMapper mapper = new ObjectMapper();
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// GLOBAL GAME ROOM
 	private Map<String, Player> players = new ConcurrentHashMap<>();
@@ -37,6 +42,7 @@ public class SpacewarGame {
 	private Map<String, Room> rooms = new ConcurrentHashMap<>();
 	private Map<String, String> names = new ConcurrentHashMap<>();
 	private Map<String, String> roomNames = new ConcurrentHashMap<>();
+	public Map<String, Integer> savedScores = readFile();
 
 	private SpacewarGame() {
 
@@ -95,7 +101,7 @@ public class SpacewarGame {
 
 		int count = this.numPlayers.decrementAndGet();
 		if (count == 0) {
-			//this.stopGameLoop();
+			// this.stopGameLoop();
 		}
 	}
 
@@ -129,7 +135,7 @@ public class SpacewarGame {
 
 	public void startGameLoop(Room room) {
 		System.out.println("game loop iniciado");
-		scheduler = Executors.newScheduledThreadPool(1);
+		room.scheduler = Executors.newScheduledThreadPool(1);
 		room.scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
 
@@ -167,8 +173,11 @@ public class SpacewarGame {
 
 	public void killPlayer(Player player, Room room) {
 		player.kill();
+		player.incrementTotalScore(player.getScore());
+		savedScores.put(player.getUserName(), player.getTotalScore());
+		writeFile(savedScores);
 		room.decrementAlivePlayers();
-		
+
 		ObjectNode msg = mapper.createObjectNode();
 
 		msg.put("event", "PLAYER EXITED");
@@ -182,12 +191,13 @@ public class SpacewarGame {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Room matchmaking(int modeId, int score) {
 		int minDist = 999999999;
 		Room bestRoom = new Room("dummy", "monika", -1);
-		for(Room room : getRooms()) {
-			if(room.getMode() == modeId && room.getNumberOfPlayers() < 4 && Math.abs(score - room.getAvgScore()) < minDist){
+		for (Room room : getRooms()) {
+			if (room.getMode() == modeId && room.getNumberOfPlayers() < 4
+					&& Math.abs(score - room.getAvgScore()) < minDist) {
 				minDist = Math.abs(score - room.getAvgScore());
 				bestRoom = room;
 			}
@@ -196,7 +206,7 @@ public class SpacewarGame {
 	}
 
 	private void tick(Room currentRoom) {
-		if(currentRoom.getNumberOfPlayers() == 0) {
+		if (currentRoom.getNumberOfPlayers() == 0) {
 			stopGameLoop(currentRoom);
 			removeRoom(currentRoom);
 		}
@@ -274,7 +284,7 @@ public class SpacewarGame {
 
 			if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
 				for (Player player : currentRoom.getPlayers()) {
-					if(!player.isDead()) {
+					if (!player.isDead()) {
 						killPlayer(player, currentRoom);
 					}
 				}
@@ -293,5 +303,40 @@ public class SpacewarGame {
 
 	public void handleCollision() {
 
+	}
+
+	// fuente:
+	// https://stackoverflow.com/questions/50142413/displaying-5-top-scores-from-txt-file-java
+	// fuente 2: https://stackabuse.com/reading-a-file-line-by-line-in-java/
+	public Map<String, Integer> readFile() {
+		Map<String, Integer> map = new ConcurrentHashMap<>();
+		try {
+			Scanner scanner = new Scanner(new File("scores.txt"));
+			while (scanner.hasNextLine()) {
+				String scoreLine = scanner.nextLine();
+				String[] scoreString = scoreLine.split(":");
+				String key = scoreString[0];
+				int value = Integer.parseInt(scoreString[1]);
+				map.put(key, value);
+			}
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+
+	public void writeFile(Map<String, Integer> map) {
+		try {
+			FileWriter fw = new FileWriter("scores.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (Entry<String, Integer> entry : map.entrySet()) {
+				bw.write(entry.getKey() + ":" + entry.getValue());
+				bw.newLine();
+			}
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

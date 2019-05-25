@@ -163,7 +163,7 @@ window.onload = function() {
 			game.global.rooms = [];
 			let i = 0;
 			for (var room of msg.rooms) {
-				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers, i)
+				let roomie = new Room(room.creator, room.name,  room.mode, room.numPlayers, i, room.avgScore)
 				game.global.rooms.push(roomie)
 				i+=70;			
 			}
