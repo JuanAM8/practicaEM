@@ -49,7 +49,7 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.currentScore = game.add.text(100,0, game.global.myPlayer.score, style);
 		//Solo cliente
 		game.global.remainingAmmo = game.add.text(0, 0, game.global.myPlayer.ammo, style);
-		
+		game.global.remainingGas = game.add.text(200, 0, game.global.myPlayer.gas, style);
 	},
 
 	create : function() {
@@ -69,11 +69,12 @@ Spacewar.gameState.prototype = {
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
 		this.dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 		this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		this.shiftKey = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 
 		// Stop the following keys from propagating up to the browser
 		game.input.keyboard.addKeyCapture([ Phaser.Keyboard.W,
 				Phaser.Keyboard.S, Phaser.Keyboard.A, Phaser.Keyboard.D,
-				Phaser.Keyboard.SPACEBAR ]);
+				Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.SHIFT ]);
 
 		game.camera.follow(game.global.myPlayer.image);
 		//Para todos
@@ -95,7 +96,8 @@ Spacewar.gameState.prototype = {
 			thrust : false,
 			brake : false,
 			rotLeft : false,
-			rotRight : false
+			rotRight : false,
+			turbo : false
 		}
 
 		msg.bullet = false
@@ -108,9 +110,12 @@ Spacewar.gameState.prototype = {
 			msg.movement.rotLeft = true;
 		if (this.dKey.isDown)
 			msg.movement.rotRight = true;
+		if (this.shiftKey.isDown)
+			msg.movement.turbo = true;
 		if (this.spaceKey.isDown) {
 			msg.bullet = this.fireBullet()
 		}
+		
 		if (game.global.DEBUG_MODE) {
 			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
 		}
@@ -126,6 +131,7 @@ Spacewar.gameState.prototype = {
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 		game.global.remainingAmmo.setText(''+game.global.myPlayer.ammo);
 		game.global.myPlayer.currentScore.setText(''+game.global.myPlayer.score);
+		game.global.remainingGas.setText(''+game.global.myPlayer.gas);
 		
 		
 		//Falta propulsor		

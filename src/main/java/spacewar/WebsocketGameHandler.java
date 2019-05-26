@@ -100,7 +100,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.loadMovement(node.path("movement").get("thrust").asBoolean(),
 						node.path("movement").get("brake").asBoolean(),
 						node.path("movement").get("rotLeft").asBoolean(),
-						node.path("movement").get("rotRight").asBoolean());
+						node.path("movement").get("rotRight").asBoolean(),
+						node.path("movement").get("turbo").asBoolean());
 				if (node.path("bullet").asBoolean()) {
 					if(player.getAmmo() > 0) {
 						Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());

@@ -103,6 +103,7 @@ window.onload = function() {
 						game.global.myPlayer.life = player.life
 						game.global.myPlayer.score = player.score
 						game.global.myPlayer.ammo = player.ammo
+						game.global.myPlayer.gas = player.gas
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							console.log("Soy JUGADOR " + player.userName + " porque no tengo una vida, me meto con las minorias")

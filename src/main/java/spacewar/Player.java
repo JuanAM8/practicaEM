@@ -29,6 +29,7 @@ public class Player extends Spaceship {
 		this.score = 0;
 		this.totalScore = 0;//se cambiara lo que venga del registro
 		this.ammo = 10;
+		this.setGas(100);
 	}
 	
 	public void setUserName(String _userName) {
@@ -102,7 +103,7 @@ public class Player extends Spaceship {
 	public void resetInGame() {
 		this.life = 10;
 		this.score = 0;
-		this.ammo = 10;
+		this.ammo = 100;
 		this.dead = false;
 		this.setPosition(Math.random() * 1000, Math.random() * 600);
 		this.setFacingAngle(Math.random() * 360);

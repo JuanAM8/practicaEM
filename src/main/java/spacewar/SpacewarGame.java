@@ -224,7 +224,7 @@ public class SpacewarGame {
 			// Update players
 			for (Player player : currentRoom.getPlayers()) {
 				player.calculateMovement();
-
+				
 				ObjectNode jsonPlayer = mapper.createObjectNode();
 				jsonPlayer.put("id", player.getPlayerId());
 				jsonPlayer.put("shipType", player.getShipType());
@@ -236,6 +236,7 @@ public class SpacewarGame {
 				jsonPlayer.put("userName", player.getUserName());
 				jsonPlayer.put("isDead", player.isDead());
 				jsonPlayer.put("ammo", player.getAmmo());
+				jsonPlayer.put("gas", player.getGas());
 				arrayNodePlayers.addPOJO(jsonPlayer);
 			}
 
