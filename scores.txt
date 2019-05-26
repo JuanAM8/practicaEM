@@ -1,4 +1,4 @@
-juan:1500
+juan:1800
 mememe:0
 loliyo:0
 noobMaster69:9000
@@ -6,7 +6,7 @@ xuloQCastiga:0
 Thanos:0
 lookincoolYOKER:0
 cesar:500
-monika:100500
+monika:101000
 kekek:0
 sans:6000
 trevorWorstBelmont:0

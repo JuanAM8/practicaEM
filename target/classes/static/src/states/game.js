@@ -48,7 +48,7 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
 		game.global.myPlayer.currentScore = game.add.text(100,0, game.global.myPlayer.score, style);
 		//Solo cliente
-		game.global.remainingAmmo = game.add.text(0, 0, game.global.proyectiles.length, style);
+		game.global.remainingAmmo = game.add.text(0, 0, game.global.myPlayer.ammo, style);
 		
 	},
 
@@ -124,7 +124,7 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 		//Solo cliente
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
-		game.global.remainingAmmo.setText(''+game.global.proyectiles.length);
+		game.global.remainingAmmo.setText(''+game.global.myPlayer.ammo);
 		game.global.myPlayer.currentScore.setText(''+game.global.myPlayer.score);
 		
 		

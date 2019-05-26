@@ -102,6 +102,7 @@ window.onload = function() {
 						game.global.myPlayer.image.angle = player.facingAngle
 						game.global.myPlayer.life = player.life
 						game.global.myPlayer.score = player.score
+						game.global.myPlayer.ammo = player.ammo
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							console.log("Soy JUGADOR " + player.userName + " porque no tengo una vida, me meto con las minorias")

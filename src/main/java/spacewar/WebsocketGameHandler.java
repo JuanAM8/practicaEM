@@ -102,10 +102,12 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						node.path("movement").get("rotLeft").asBoolean(),
 						node.path("movement").get("rotRight").asBoolean());
 				if (node.path("bullet").asBoolean()) {
-					Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
-					room = game.getRoom(player.getRoomName());
-					room.addProjectile(projectile.getId(), projectile);
-					game.addRoom(room);
+					if(player.getAmmo() > 0) {
+						Projectile projectile = new Projectile(player, this.projectileId.incrementAndGet());
+						room = game.getRoom(player.getRoomName());
+						room.addProjectile(projectile.getId(), projectile);
+						game.addRoom(room);
+					}
 				}
 				break;
 			case "LOG IN":

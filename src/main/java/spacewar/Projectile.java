@@ -49,6 +49,7 @@ public class Projectile extends SpaceObject {
 		this.setFacingAngle(owner.getFacingAngle());
 		this.setVelocity(Math.cos(this.getFacingAngle() * Math.PI / 180) * PROJECTILE_SPEED,
 				Math.sin(this.getFacingAngle() * Math.PI / 180) * PROJECTILE_SPEED);
+		this.owner.decreaseAmmo();
 	}
 
 }
