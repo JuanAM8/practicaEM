@@ -158,7 +158,6 @@ function showResults(){
 function resultsString(){
 	arrayScores = [];
 	let tuple;
-	console.log(game.global.otherPlayers[2])
 	for(var player of game.global.otherPlayers){
 		if (typeof player !== 'undefined'){
 			tuple = [player.userName, player.score];

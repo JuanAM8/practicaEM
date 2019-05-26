@@ -314,6 +314,7 @@ public class SpacewarGame {
 			if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
 				for (Player player : currentRoom.getPlayers()) {
 					if (!player.isDead()) {
+						player.incrementScore(1000);
 						killPlayer(player, currentRoom);
 					}
 				}
