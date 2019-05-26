@@ -21,7 +21,7 @@ Spacewar.lobbyState.prototype = {
 		var newbg = game.add.sprite(0, 0, 'background');		
 		var bCreate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bCreateRoom', onClickCreate, this)		
 		var bJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bJoinRoom', onClickJoin, this)
-		var bHall = game.add.button(game.world.centerX -400, game.world.centerY+150, 'bMatchmaking', onClickHall, this)
+		var bHall = game.add.button(game.world.centerX -400, game.world.centerY+150, 'bHallOfFame', onClickHall, this)
 	},
 
 	update : function() {

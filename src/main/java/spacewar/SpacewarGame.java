@@ -180,9 +180,11 @@ public class SpacewarGame {
 
 		ObjectNode msg = mapper.createObjectNode();
 
-		msg.put("event", "PLAYER EXITED");
+		//msg.put("event", "PLAYER EXITED");
+		msg.put("event", "PLAYER DIED");
 		msg.put("playerid", player.getPlayerId());
 		broadcast(msg.toString(), room);
+		
 
 		msg.put("event", "SHOW RESULTS");
 		try {

@@ -210,8 +210,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					jsonHall.put("name", entry.getKey());
 					jsonHall.put("score", entry.getValue());
 					arrayNodeHall.addPOJO(jsonHall);
-					System.out.println(entry.getKey());
-					System.out.println(entry.getKey());
 				}
 				msg.put("event", "HALL OF FAME");
 				msg.putPOJO("hall", arrayNodeHall);

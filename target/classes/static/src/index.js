@@ -12,7 +12,8 @@ window.onload = function() {
 		myPlayer : new Object(),//Inicializa el jugador local del cliente
 		otherPlayers : [],//Array de los jugadores con los que se conecta
 		projectiles : [],//Array de municion
-		rooms : []//Array de salas
+		rooms : [],//Array de salas
+		hallOfFame: []//Array con las mejores puntuaciones WIP
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -63,10 +64,11 @@ window.onload = function() {
 					game.state.start('roomState')
 				}
 			}else{
-				let answer = confirm('te has pasao bacalao, volver a probar??')
+				let answer = confirm('Te has pasao bacalao, ¿Volver a intentar en 5 segundos?')
 				if (answer){
-					joinRoom(msg.name, msg.mode);
+					game.time.events.add(Phaser.Timer.SECOND * 5, joinRoom.bind(this, msg.name, msg.mode), this);
 				}
+				
 			}
 			break
 		case 'LOG IN':
@@ -98,6 +100,7 @@ window.onload = function() {
 						game.global.myPlayer.score = player.score
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
+							console.log("Soy JUGADOR " + player.userName + " porque no tengo una vida, me meto con las minorias")
 							//Si los jugadores rivales aun no tiene info, se le mete
 							game.global.otherPlayers[player.id] = {
 									image : game.add.sprite(player.posX, player.posY, 'spacewar', player.shipType)
@@ -155,6 +158,7 @@ window.onload = function() {
 			game.global.otherPlayers[msg.id].image.destroy()
 			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
+			break;
 		case 'UPDATE ROOMS' :
 			for(var j = 0; j < game.global.rooms.length; j++){
 				game.global.rooms[j].image.destroy();
@@ -194,19 +198,24 @@ window.onload = function() {
 			game.state.start("lobbyState")
 			game.global.myPlayer.room = {}
 			break
-		case "PLAYER EXITED":
+		case 'PLAYER DIED':
 			let playerid = msg.playerid;
 			if (game.global.myPlayer.id == playerid) {
 				game.global.myPlayer.image.destroy();
 				game.global.myPlayer.text.destroy();
 				game.global.myPlayer.lifeText.destroy();
-
 			}else{
 				game.global.otherPlayers[playerid].image.destroy();
 				game.global.otherPlayers[playerid].text.destroy();
 				game.global.otherPlayers[playerid].lifeText.destroy();
 			}
-			
+			break;
+		case 'PLAYER EXITED':
+			let playerExid = msg.playerid;
+			game.global.otherPlayers[playerExid].image.destroy();
+			game.global.otherPlayers[playerExid].text.destroy();
+			game.global.otherPlayers[playerExid].lifeText.destroy();
+			game.global.otherPlayers[playerExid] = undefined;		
 			break
 		case 'SHOW RESULTS':
 			showResults();
@@ -220,8 +229,12 @@ window.onload = function() {
 			break;
 		case 'HALL OF FAME':
 			for(var playerScore of msg.hall){
-				console.log(playerScore.name + " : " + playerScore.score);
+				let scoreTuple = [playerScore.name, playerScore.score];
+				//let scoreText = playerScore.name + " : " + playerScore.score + "\n";
+				//console.log(playerScore.name + " : " + playerScore.score);
+				game.global.hallOfFame.push(scoreTuple);
 			}
+			game.state.start('hallState');
 			break
 		default :
 			console.dir(msg)
@@ -237,6 +250,7 @@ window.onload = function() {
 	game.state.add('matchmakingState', Spacewar.matchmakingState)
 	game.state.add('roomState', Spacewar.roomState)
 	game.state.add('gameState', Spacewar.gameState)
+	game.state.add('hallState', Spacewar.hallState)
 	game.state.start('bootState')
 
 }

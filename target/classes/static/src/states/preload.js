@@ -32,6 +32,8 @@ Spacewar.preloadState.prototype = {
 		game.load.image('results', 'assets/images/marcadores.png');
 		game.load.image('bReturnToLobby', 'assets/images/volverlobby.png');
 		game.load.image('bMatchmaking', 'assets/images/matchmaking.png');
+		game.load.image('bHallOfFame', 'assets/images/hof.png');
+
 	},
 
 	create : function() {
