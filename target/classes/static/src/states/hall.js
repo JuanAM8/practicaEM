@@ -14,14 +14,12 @@ Spacewar.hallState = function(game) {
         },
     
         create : function() {
-            console.log("Estas en HALL")
             let titleHall = game.add.text(100, 10, "MEJORES PUNTUACIONES", { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
             let hallOffset = 35;
             game.global.hallOfFame = ordenacionInsercion(game.global.hallOfFame);
             for (var i = 0; i < 10; i++){
                 if (game.global.hallOfFame.length > i){
                     let hallText = (i+1) + ". " + game.global.hallOfFame[i][0] + " : " + game.global.hallOfFame[i][1] + "\n";
-                    console.log("Iteracion " + i + " User: " + hallText )                    
                     let hallIt = game.add.text(100, hallOffset, hallText, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });	
                     hallOffset += 25;	
                 }    

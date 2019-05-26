@@ -13,6 +13,7 @@ Spacewar.gameState.prototype = {
 		}
 	},
 	preload : function() {
+		game.global.waiting = false;//OJOCUIDAO
 		game.global.otherPlayers = [];
 		// We create a procedural starfield background
 		for (var i = 0; i < this.numStars; i++) {

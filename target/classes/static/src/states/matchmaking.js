@@ -32,12 +32,15 @@ Spacewar.matchmakingState.prototype = {
 		},
 
 	update : function() {
-		/*if (typeof game.global.myPlayer.room !== 'undefined') {
-			if (game.global.DEBUG_MODE) {
-				console.log("[DEBUG] Joined room " + game.global.myPlayer.room);
+		if (game.global.waiting){
+			for (var room of game.global.rooms){
+				room.image.input.enabled = false;
 			}
-			game.state.start('roomState')
-		}*/
+		} else {
+			for (var room of game.global.rooms){
+				room.image.input.enabled = true;
+			}
+		}
 	}
 }
 
@@ -56,10 +59,6 @@ function matchmaking(){
 }
 
 function joinRoom(_name, _mode){
-	console.log(_name);
-	if (game.global.DEBUG_MODE) {
-		console.log("[DEBUG] Joining room...");
-	}
 	let message = {
 		event : 'JOIN ROOM',
 		name: _name,

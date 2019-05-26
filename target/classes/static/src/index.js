@@ -7,6 +7,7 @@ window.onload = function() {
 	//Parametros globales del juego
 	game.global = {
 		FPS : 30,
+		waiting : false,
 		DEBUG_MODE : false,
 		socket : null,
 		myPlayer : new Object(),//Inicializa el jugador local del cliente
@@ -66,7 +67,10 @@ window.onload = function() {
 			}else{
 				let answer = confirm('Te has pasao bacalao, ¿Volver a intentar en 5 segundos?')
 				if (answer){
+					game.global.waiting = true;
 					game.time.events.add(Phaser.Timer.SECOND * 5, joinRoom.bind(this, msg.name, msg.mode), this);
+				} else {
+					game.global.waiting = false;
 				}
 				
 			}
