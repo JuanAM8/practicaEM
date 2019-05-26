@@ -1,5 +1,6 @@
 Spacewar.matchmakingState = function(game) {
-
+	var bMatchmaking;
+	var bUpdate;
 }
 
 Spacewar.matchmakingState.prototype = {
@@ -22,8 +23,8 @@ Spacewar.matchmakingState.prototype = {
 	},
 
 	create : function() {
-		let bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
-		let bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', matchmaking, this)
+		bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
+		bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', matchmaking, this)
 		/*let roomPrueba = game.add.button(20, 30, 'roomInfo', updateRooms, this)
 		let textPrueba = game.add.text(20, 30, "Modo: " + this.mode + " Nombre: " + this.name 
 			+ "Jugadores: " + this.numPlayers + "Creador: " + this.creator, { font: "bold 10px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
@@ -36,10 +37,14 @@ Spacewar.matchmakingState.prototype = {
 			for (var room of game.global.rooms){
 				room.image.input.enabled = false;
 			}
+			bMatchmaking.input.enabled = false;
+			bUpdate.input.enabled = false;
 		} else {
 			for (var room of game.global.rooms){
 				room.image.input.enabled = true;
 			}
+			bMatchmaking.input.enabled = true;	
+			bUpdate.input.enabled = true;		
 		}
 	}
 }
