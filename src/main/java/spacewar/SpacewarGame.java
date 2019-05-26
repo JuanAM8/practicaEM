@@ -43,6 +43,8 @@ public class SpacewarGame {
 	private Map<String, String> names = new ConcurrentHashMap<>();
 	private Map<String, String> roomNames = new ConcurrentHashMap<>();
 	public Map<String, Integer> savedScores = readFile();
+	
+	private AtomicInteger powerUpId = new AtomicInteger(0);
 
 	private SpacewarGame() {
 
@@ -107,6 +109,7 @@ public class SpacewarGame {
 
 	public void startRoomGame(Room room) {
 		room.setAlivePlayers(room.getNumberOfPlayers());
+		room.spawnPowerUp(powerUpId.incrementAndGet());
 		room.setInGame(true);
 		this.startGameLoop(room);
 		ObjectNode msg = mapper.createObjectNode();
@@ -215,6 +218,7 @@ public class SpacewarGame {
 		ObjectNode json = mapper.createObjectNode();
 		ArrayNode arrayNodePlayers = mapper.createArrayNode();
 		ArrayNode arrayNodeProjectiles = mapper.createArrayNode();
+		ArrayNode arrayNodePowerUps = mapper.createArrayNode();
 
 		long thisInstant = System.currentTimeMillis();
 		Set<Integer> bullets2Remove = new HashSet<>();
@@ -240,6 +244,27 @@ public class SpacewarGame {
 				arrayNodePlayers.addPOJO(jsonPlayer);
 			}
 
+			//Update powerUp
+			ObjectNode jsonPU = mapper.createObjectNode();
+			jsonPU.put("id", currentRoom.getCurrentPU().getId());
+			jsonPU.put("type", currentRoom.getCurrentPU().getType());
+			jsonPU.put("posX", currentRoom.getCurrentPU().getPosX());
+			jsonPU.put("posY", currentRoom.getCurrentPU().getPosY());
+			arrayNodePowerUps.addPOJO(jsonPU);
+			
+			for(Player player : currentRoom.getPlayers()) {
+				if(!player.isDead()) {
+					if(player.intersect(currentRoom.getCurrentPU())) {
+						if(currentRoom.getCurrentPU().getType() == "ammo") {
+							player.increaseAmmo(30);
+						}else if(currentRoom.getCurrentPU().getType() == "gas") {
+							player.refillGas();
+						}
+						currentRoom.spawnPowerUp(powerUpId.incrementAndGet());
+					}
+					
+				}
+			}
 			// Update bullets and handle collision
 			for (Projectile projectile : currentRoom.getProjectiles()) {
 				projectile.applyVelocity2Position();
@@ -298,6 +323,7 @@ public class SpacewarGame {
 			json.put("event", "GAME STATE UPDATE");
 			json.putPOJO("players", arrayNodePlayers);
 			json.putPOJO("projectiles", arrayNodeProjectiles);
+			json.putPOJO("powerups", arrayNodePowerUps);
 
 			this.broadcast(json.toString(), currentRoom);
 		} catch (Throwable ex) {

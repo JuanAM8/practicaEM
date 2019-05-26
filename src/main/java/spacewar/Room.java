@@ -17,10 +17,12 @@ public class Room {
 	private final int mode;
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
+	private PowerUp currentPU;
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean inGame;
 	private int avgScore;//para la dificultad
+	
 	
 	public Room(String name, String creator, int mode) {
 		this.name = name;
@@ -123,5 +125,17 @@ public class Room {
 		}else {
 			this.avgScore = 0;
 		}
+	}
+
+	public PowerUp getCurrentPU() {
+		return currentPU;
+	}
+
+	public void setCurrentPU(PowerUp currentPU) {
+		this.currentPU = currentPU;
+	}
+	
+	public void spawnPowerUp(int id) {
+		this.currentPU = new PowerUp(id);
 	}
 }

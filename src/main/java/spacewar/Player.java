@@ -17,6 +17,9 @@ public class Player extends Spaceship {
 	private int score;
 	private int totalScore;
 	private int ammo;
+	
+	private final int MAX_AMMO = 100;
+	private final int MAX_GAS = 100;
 
 	public Player(int playerId, WebSocketSession session) {
 		this.playerId = playerId;
@@ -28,8 +31,8 @@ public class Player extends Spaceship {
 		this.dead = false;
 		this.score = 0;
 		this.totalScore = 0;//se cambiara lo que venga del registro
-		this.ammo = 10;
-		this.setGas(100);
+		this.ammo = MAX_AMMO;
+		this.setGas(MAX_GAS);
 	}
 	
 	public void setUserName(String _userName) {
@@ -103,7 +106,8 @@ public class Player extends Spaceship {
 	public void resetInGame() {
 		this.life = 10;
 		this.score = 0;
-		this.ammo = 100;
+		this.ammo = MAX_AMMO;
+		this.setGas(MAX_GAS);
 		this.dead = false;
 		this.setPosition(Math.random() * 1000, Math.random() * 600);
 		this.setFacingAngle(Math.random() * 360);
@@ -132,10 +136,18 @@ public class Player extends Spaceship {
 	}
 	
 	public void increaseAmmo(int increase) {
-		this.ammo += increase;
+		if((this.ammo + increase) > MAX_AMMO) {
+			ammo = MAX_AMMO;
+		}else {
+			this.ammo += increase;
+		}
 	}
 	
 	public void decreaseAmmo(){
 		this.ammo--;
+	}
+	
+	public void refillGas() {
+		this.setGas(MAX_GAS);
 	}
 }

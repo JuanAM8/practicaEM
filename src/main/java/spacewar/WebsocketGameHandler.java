@@ -183,6 +183,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				if (player.getRoomName() != "") {
 					room = game.getRoom(player.getRoomName());
 					room.removePlayer(player);
+					room.decrementAlivePlayers();
 					player.setRoomName("");
 					if (room.getNumberOfPlayers() == 0) {
 						game.removeRoom(room);

@@ -4,6 +4,7 @@ Spacewar.gameState = function(game) {
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
 }
+var arrayScores = [];
 var resultsText;
 Spacewar.gameState.prototype = {
 
@@ -13,7 +14,7 @@ Spacewar.gameState.prototype = {
 		}
 	},
 	preload : function() {
-		game.global.waiting = false;//OJOCUIDAO
+		arrayScores = []
 		game.global.otherPlayers = [];
 		// We create a procedural starfield background
 		for (var i = 0; i < this.numStars; i++) {
@@ -50,6 +51,8 @@ Spacewar.gameState.prototype = {
 		//Solo cliente
 		game.global.remainingAmmo = game.add.text(0, 0, game.global.myPlayer.ammo, style);
 		game.global.remainingGas = game.add.text(200, 0, game.global.myPlayer.gas, style);
+
+		game.global.powerup.image = game.add.sprite(0, 0 , 'PUammo')
 	},
 
 	create : function() {
@@ -133,10 +136,9 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.currentScore.setText(''+game.global.myPlayer.score);
 		game.global.remainingGas.setText(''+game.global.myPlayer.gas);
 		
-		
-		//Falta propulsor		
+				
 		if (typeof resultsText !== 'undefined'){
-			resultsText.setText('has ganado \nPuntuacion: ' + game.global.myPlayer.score);
+			resultsText.setText(resultsString());
 		}
 	}
 }
@@ -149,6 +151,25 @@ function exitGame(){
 
 function showResults(){
 	var resultsImage = game.add.image(0, 0, 'results');
-	resultsText = game.add.text(0,30, 'has ganado \nPuntuacion: ' + game.global.myPlayer.score, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
-	var bReturn = game.add.button(0, 100, 'bReturnToLobby', exitGame.bind(this), this)
+	resultsText = game.add.text(0,30, resultsString(), { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+	var bReturn = game.add.button(0, 500, 'bReturnToLobby', exitGame.bind(this), this)
+}
+
+function resultsString(){
+	arrayScores = [];
+	let tuple;
+	for(var player of game.global.otherPlayers){
+		if (typeof player !== 'undefined'){
+			tuple = [player.userName, player.score];
+			arrayScores.push(tuple);
+		}		
+	}
+	tuple = [game.global.myPlayer.userName, game.global.myPlayer.score]
+	arrayScores.push(tuple)
+	arrayScores = ordenacionInsercion(arrayScores)
+	var score = '';
+	for (var i = 0; i < arrayScores.length; i++){
+		score += (i+1) + ". " + arrayScores[i][0] + " : " + arrayScores[i][1] + "\n";	
+	}
+	return score
 }

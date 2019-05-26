@@ -85,10 +85,6 @@ public class Spaceship extends SpaceObject {
 		this.gas = gas;
 	}
 	
-	public void increaseGas(int increase) {
-		this.gas += increase;
-	}
-	
 	public void decreaseGas(){
 		this.gas--;
 	}

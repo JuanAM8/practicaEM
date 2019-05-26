@@ -13,6 +13,7 @@ window.onload = function() {
 		myPlayer : new Object(),//Inicializa el jugador local del cliente
 		otherPlayers : [],//Array de los jugadores con los que se conecta
 		projectiles : [],//Array de municion
+		powerup : new Object(), //Array de powerups
 		rooms : [],//Array de salas
 		hallOfFame: []//Array con las mejores puntuaciones WIP
 	}
@@ -106,18 +107,19 @@ window.onload = function() {
 						game.global.myPlayer.gas = player.gas
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
-							console.log("Soy JUGADOR " + player.userName + " porque no tengo una vida, me meto con las minorias")
 							//Si los jugadores rivales aun no tiene info, se le mete
 							game.global.otherPlayers[player.id] = {
-									image : game.add.sprite(player.posX, player.posY, 'spacewar', player.shipType)
+									image : game.add.sprite(player.posX, player.posY, 'spacewar', player.shipType),
 							}
 							game.global.otherPlayers[player.id].image.anchor.setTo(0.5, 0.5)
 							//Asociar nombre para los jugadores contrarios
 							game.global.otherPlayers[player.id].text = game.add.text(50, 50, player.userName, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });
 							game.global.otherPlayers[player.id].text.anchor.setTo(0.5, 0.5)
+							game.global.otherPlayers[player.id].userName = player.userName;
 							//Asociar la vida para los jugadores contrarios
 							game.global.otherPlayers[player.id].lifeText = game.add.text(50, 50, player.life, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });
 							game.global.otherPlayers[player.id].lifeText.anchor.setTo(0.5, 0.5)
+
 						} else {
 							//Aqui si: Se da a los otros jugadores la posicion
 							game.global.otherPlayers[player.id].image.x = player.posX
@@ -128,6 +130,7 @@ window.onload = function() {
 							game.global.otherPlayers[player.id].lifeText.setText(''+player.life);
 							game.global.otherPlayers[player.id].lifeText.x = player.posX;
 							game.global.otherPlayers[player.id].lifeText.y = player.posY - 20;
+							game.global.otherPlayers[player.id].score = player.score;
 						}
 					}
 				}
@@ -152,6 +155,12 @@ window.onload = function() {
 						}
 						game.global.projectiles[projectile.id].image.visible = false
 					}
+				}
+				//Powerups
+				if(typeof game.global.powerup !== 'undefined'){
+					game.global.powerup.image.x = msg.powerups[0].posX
+					game.global.powerup.image.y = msg.powerups[0].posY
+					game.global.powerup.image.loadTexture('PU' + msg.powerups[0].type)
 				}
 			}
 			break
