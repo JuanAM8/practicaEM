@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -218,6 +219,21 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "HALL OF FAME");
 				msg.putPOJO("hall", arrayNodeHall);
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
+				break;
+			case "CHAT MESSAGE":
+				String lastMessage = node.get("author").asText() + " : " + node.get("content").asText();
+				System.out.println(lastMessage);
+				room = game.getRoom(player.getRoomName());
+				room.pushMessage(lastMessage);
+				ArrayNode arrayNodeMessages = mapper.createArrayNode();
+				for (String m : room.messageList()) {
+					ObjectNode userText = mapper.createObjectNode();
+					userText.put("text", m);
+					arrayNodeMessages.addPOJO(userText);
+				}
+				msg.put("event", "UPDATE CHAT");
+				msg.putPOJO("chatMessages", arrayNodeMessages);
+				game.broadcast(msg.toString(), room);		
 				break;
 			default:
 				break;

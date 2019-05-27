@@ -211,5 +211,10 @@ function hideChat(){
 
 function chatInput(){
 	userMessage = prompt('Escribe tu mensaje')
-	console.log(userMessage)
+	let msg = new Object();
+	msg.event = 'CHAT MESSAGE';
+	msg.author = game.global.myPlayer.userName;
+	msg.content = userMessage;
+	game.global.socket.send(JSON.stringify(msg));
+	userMessage = null;
 }

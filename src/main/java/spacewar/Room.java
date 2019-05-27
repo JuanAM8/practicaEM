@@ -1,8 +1,12 @@
 package spacewar;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
@@ -17,6 +21,7 @@ public class Room {
 	private final int mode;
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
+	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(10);
 	private PowerUp currentPU;
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -137,5 +142,34 @@ public class Room {
 	
 	public void spawnPowerUp(int id) {
 		this.currentPU = new PowerUp(id);
+	}
+	
+	//Intenta insertar el mensaje. Si no puede porque la cola esta llena, llama a pop para expulsarlo y cuando
+	//acaba lo mete. Al ser bloqueante, evita problemas de concurrencia.
+	public void pushMessage(String msg) {
+		try {
+			if (!chat.offer(msg)) {
+				popMessage();
+				chat.put(msg);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void popMessage() {
+		try {
+			chat.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public List<String> messageList(){
+		List<String> messages = new ArrayList<>();
+		for (String msg : chat) {
+			messages.add(msg);
+		}
+		return messages;
 	}
 }

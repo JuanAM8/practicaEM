@@ -251,6 +251,11 @@ window.onload = function() {
 			}
 			game.state.start('hallState');
 			break
+		case 'UPDATE CHAT':
+			for (var messageText of msg.chatMessages){
+				console.log(messageText.text);
+			}
+			break
 		default :
 			console.dir(msg)
 			break
