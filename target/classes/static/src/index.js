@@ -15,7 +15,9 @@ window.onload = function() {
 		projectiles : [],//Array de municion
 		powerup : new Object(), //Array de powerups
 		rooms : [],//Array de salas
-		hallOfFame: []//Array con las mejores puntuaciones WIP
+		hallOfFame: [],//Array con las mejores puntuaciones WIP
+		chat: null			
+		
 	}
 
 	// WEBSOCKET CONFIGURATOR
@@ -34,7 +36,6 @@ window.onload = function() {
 			console.log('[DEBUG] WebSocket connection closed.')
 		}
 	}
-	var startButton;
 	//Cuando recibe un mensaje, parsea lo que le llega
 	game.global.socket.onmessage = (message) => {
 		var msg = JSON.parse(message.data)
@@ -85,8 +86,6 @@ window.onload = function() {
 				alert('Este usuario ya existe');
 				onClickStart();
 			}
-			
-			
 			break
 		case 'GAME STATE UPDATE' :
 			if (game.global.DEBUG_MODE) {
@@ -165,10 +164,6 @@ window.onload = function() {
 			}
 			break
 		case 'REMOVE PLAYER' :
-			if (game.global.DEBUG_MODE) {
-				console.log('[DEBUG] REMOVE PLAYER message recieved')
-				console.dir(msg.players)
-			}
 			//REMOVE PLAYER: Se carga la imagen y borra al jugador del array
 			game.global.otherPlayers[msg.id].image.destroy()
 			//game.global.otherPlayers[msg.id].text.destroy()
@@ -188,10 +183,12 @@ window.onload = function() {
 			}
 			break
 		case 'ROOM READY':
-			startButton = game.add.button(700, 400, 'bStartMatch', startMatch.bind(this), this)
+			startButton.visible = true;
+			startButton.input.enabled = true;
 			break;
 		case 'ROOM NOT READY':
-			startButton.destroy();
+			startButton.visible = false;
+			startButton.input.enabled = false;
 			break
 		case 'START GAME' :
 			game.state.start('gameState')
@@ -226,11 +223,12 @@ window.onload = function() {
 			}
 			break;
 		case 'PLAYER EXITED':
-			let playerExid = msg.playerid;
-			game.global.otherPlayers[playerExid].image.destroy();
-			game.global.otherPlayers[playerExid].text.destroy();
-			game.global.otherPlayers[playerExid].lifeText.destroy();
-			game.global.otherPlayers[playerExid] = undefined;		
+			if (game.state.getCurrentState().key === 'gameState'){
+				game.global.otherPlayers[msg.playerid].image.destroy();
+				game.global.otherPlayers[msg.playerid].text.destroy();
+				game.global.otherPlayers[msg.playerid].lifeText.destroy();
+				game.global.otherPlayers[msg.playerid] = undefined;		
+			}
 			break
 		case 'SHOW RESULTS':
 			showResults();
@@ -252,9 +250,15 @@ window.onload = function() {
 			game.state.start('hallState');
 			break
 		case 'UPDATE CHAT':
+			let chatString = "";
 			for (var messageText of msg.chatMessages){
+				chatString += messageText.text + "\n";
 				console.log(messageText.text);
 			}
+			game.global.chat.setText(chatString);			
+			break
+		case 'ROOM REMOVED':
+			game.state.start('lobbyState');
 			break
 		default :
 			console.dir(msg)

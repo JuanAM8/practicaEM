@@ -59,7 +59,7 @@ Spacewar.gameState.prototype = {
 
 		game.global.powerup.image = game.add.sprite(0, 0 , 'PUammo')
 
-		//Chat
+		//Chat	
 		gameChat = game.add.image(825, 200, 'chatBox')
 		gameChat.visible = false
 		buttonChat = game.add.button(825, 530, 'bChat', chatInput, this)
@@ -69,6 +69,8 @@ Spacewar.gameState.prototype = {
 		buttonHide.visible = false
 		buttonHide.input.enabled = false
 		buttonShow = game.add.button(825, 570, 'bShow', showChat, this)
+		game.global.chat = game.add.text(825, 200, "", { font: "bold 12px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" })			
+		game.global.chat.visible = false
 	},
 
 	create : function() {
@@ -197,6 +199,7 @@ function showChat(){
 	gameChat.visible = true
 	buttonChat.visible = true
 	buttonChat.input.enabled = true
+	game.global.chat.visible = true
 }
 
 function hideChat(){
@@ -207,6 +210,7 @@ function hideChat(){
 	gameChat.visible = false
 	buttonChat.visible = false
 	buttonChat.input.enabled = false
+	game.global.chat.visible = false
 }
 
 function chatInput(){

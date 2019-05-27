@@ -1,5 +1,5 @@
 Spacewar.roomState = function(game) {
-
+var startButton;
 }
 
 Spacewar.roomState.prototype = {
@@ -11,11 +11,13 @@ Spacewar.roomState.prototype = {
 	},
 
 	preload : function() {
-
+		let bg = game.add.sprite(0, 0, 'background');
+		startButton = game.add.button(700, 400, 'bStartMatch', startMatch.bind(this), this)
+		startButton.input.enabled = false;
+		startButton.visible = false;
 	},
 
 	create : function() {
-		let bg = game.add.sprite(0, 0, 'background');
 		let modeName = parseMode(game.global.myPlayer.room.mode);
 		let infoText = game.global.myPlayer.room.name + "\n" + modeName;
 		let roomText = game.add.text(200, 200, infoText, { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" });

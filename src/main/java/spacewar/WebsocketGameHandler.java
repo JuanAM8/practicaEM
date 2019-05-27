@@ -29,6 +29,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	private ObjectMapper mapper = new ObjectMapper();
 	private AtomicInteger playerId = new AtomicInteger(0);
 	private AtomicInteger projectileId = new AtomicInteger(0);
+	private final int MAXPLAYERS_BR = 8;
+	private final int MAXPLAYERS_CLASSIC = 2;
 
 
 	@Override
@@ -68,7 +70,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				// añade jugador a la room
 				boolean hasEntered = false;
 				room = game.getRoom(node.path("name").asText());
-				if (room.getNumberOfPlayers() < 4 && room.getAlivePlayers() != 0) {
+				if ((room.getNumberOfPlayers() < MAXPLAYERS_BR && room.getMode() == 1 && 
+						room.getAlivePlayers() != 0) || (room.getNumberOfPlayers() < MAXPLAYERS_CLASSIC
+						&& room.getMode() == 0 && room.getAlivePlayers() != 0)) {
 					hasEntered = true;
 					player.resetInGame();
 					player.setRoomName(node.path("name").asText());
@@ -87,9 +91,10 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				// Busca la Room con ese nombre y mete al jugador en dicha room.
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				if (room.getAlivePlayers() == -1 && hasEntered) {
-					if (room.getNumberOfPlayers() == 4) {
+					if ((room.getNumberOfPlayers() == MAXPLAYERS_BR && room.getMode() == 1)
+							|| (room.getNumberOfPlayers() == MAXPLAYERS_CLASSIC && room.getMode() == 0)) {
 						game.startRoomGame(room);
-					} else if (room.getNumberOfPlayers() == 2) {
+					} else if (room.getNumberOfPlayers() > 2  && room.getMode() == 1) {
 						Player auxCreator = room.searchPlayer(room.getCreator());
 						msg.put("event", "ROOM READY");
 						auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -174,7 +179,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("event", "EXIT ROOM");
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 
-				if (room.getNumberOfPlayers() == 1) {
+				if (room.getNumberOfPlayers() < 3) {
 					msg.put("event", "ROOM NOT READY");
 					Player exitedCreator = room.searchPlayer(room.getCreator());
 					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -250,11 +255,33 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 		game.removePlayer(player);
 
-		ObjectNode msg = mapper.createObjectNode();
-		msg.put("event", "REMOVE PLAYER");
-		msg.put("id", player.getPlayerId());
-		game.broadcastToAll(msg.toString());
-	}
+		if (player.getRoomName() != "") {
+			ObjectNode msg = mapper.createObjectNode();
+			Room roomAux = game.getRoom(player.getRoomName());
 
-	
+			msg.put("event", "PLAYER EXITED");
+			msg.put("playerid", player.getPlayerId());
+			game.broadcast(msg.toString(), roomAux);
+			
+			Player exitedCreator = roomAux.searchPlayer(roomAux.getCreator());
+			roomAux.removePlayer(player);
+			if (roomAux.isInGame()) {
+				roomAux.decrementAlivePlayers();
+			} else if (exitedCreator != player) {
+				if (roomAux.getNumberOfPlayers() == 1) {
+					msg.put("event", "ROOM NOT READY");
+					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+				}
+			} else if (exitedCreator == player && roomAux.getNumberOfPlayers() > 0 ) {
+				for (Player p : roomAux.getPlayers()) {
+					p.setRoomName("");
+				}
+				msg.put("event", "ROOM REMOVED");
+				game.broadcast(msg.toString(), roomAux);
+				game.removeRoom(roomAux);
+			} else if (roomAux.getNumberOfPlayers() == 0) {
+				game.removeRoom(roomAux);
+			}		
+		}
+	}
 }

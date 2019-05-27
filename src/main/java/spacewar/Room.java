@@ -21,7 +21,7 @@ public class Room {
 	private final int mode;
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
-	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(10);
+	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(15);
 	private PowerUp currentPU;
 	private int alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
