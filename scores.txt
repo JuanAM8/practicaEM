@@ -8,6 +8,7 @@ loko:0
 moniks:1000
 hulio:1000
 noobMaster69:25300
+guile:0
 xuloQCastiga:0
 moniak:0
 noobMaster67:0
@@ -18,8 +19,11 @@ lookincoolYOKER:0
 cesar:500
 monika:103800
 kekek:0
+sonic:0
 sans:7700
 trevorWorstBelmont:0
+avengers project:4000
+paco:0
 julio:500
 klk:1500
 renoRenardo:500

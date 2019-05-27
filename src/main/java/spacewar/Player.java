@@ -1,6 +1,7 @@
 package spacewar;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -16,7 +17,7 @@ public class Player extends Spaceship {
 	private boolean dead;
 	private int score;
 	private int totalScore;
-	private int ammo;
+	private AtomicInteger ammo;
 	
 	private final int MAX_AMMO = 100;
 	private final int MAX_GAS = 100;
@@ -31,7 +32,7 @@ public class Player extends Spaceship {
 		this.dead = false;
 		this.score = 0;
 		this.totalScore = 0;//se cambiara lo que venga del registro
-		this.ammo = MAX_AMMO;
+		this.ammo = new AtomicInteger(MAX_AMMO);
 		this.setGas(MAX_GAS);
 	}
 	
@@ -106,7 +107,7 @@ public class Player extends Spaceship {
 	public void resetInGame() {
 		this.life = 10;
 		this.score = 0;
-		this.ammo = MAX_AMMO;
+		this.ammo.set(MAX_AMMO);
 		this.setGas(MAX_GAS);
 		this.dead = false;
 		this.setPosition(Math.random() * 1000, Math.random() * 600);
@@ -128,23 +129,21 @@ public class Player extends Spaceship {
 	}
 
 	public int getAmmo() {
-		return ammo;
+		return ammo.get();
 	}
 
 	public void setAmmo(int ammo) {
-		this.ammo = ammo;
+		this.ammo.set(ammo);
 	}
 	
-	public void increaseAmmo(int increase) {
-		if((this.ammo + increase) > MAX_AMMO) {
-			ammo = MAX_AMMO;
-		}else {
-			this.ammo += increase;
+	public synchronized void increaseAmmo(int increase) {
+		if(ammo.addAndGet(increase) > MAX_AMMO) {
+			ammo.set(MAX_AMMO);
 		}
 	}
 	
 	public void decreaseAmmo(){
-		this.ammo--;
+		this.ammo.decrementAndGet();
 	}
 	
 	public void refillGas() {

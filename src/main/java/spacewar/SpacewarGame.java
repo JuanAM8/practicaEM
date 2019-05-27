@@ -89,9 +89,6 @@ public class SpacewarGame {
 		players.put(player.getSession().getId(), player);
 
 		int count = numPlayers.getAndIncrement();
-		if (count == 0) {
-			// this.startGameLoop();
-		}
 	}
 
 	public Collection<Player> getPlayers() {
@@ -102,9 +99,6 @@ public class SpacewarGame {
 		players.remove(player.getSession().getId());
 
 		int count = this.numPlayers.decrementAndGet();
-		if (count == 0) {
-			// this.stopGameLoop();
-		}
 	}
 
 	public void startRoomGame(Room room) {
@@ -279,7 +273,12 @@ public class SpacewarGame {
 							player.decrementLife(2);
 							projectile.getOwner().incrementScore(100);
 							if (player.getLife() <= 0) {
-								killPlayer(player, currentRoom);
+								currentRoom.lockJoinLock();
+								try {
+									killPlayer(player, currentRoom);
+								}finally {
+									currentRoom.unlockJoinLock();
+								}
 							}
 							break;
 						}
@@ -311,15 +310,21 @@ public class SpacewarGame {
 			if (removeBullets)
 				currentRoom.removeSomeProjectiles(bullets2Remove);
 
-			if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
-				for (Player player : currentRoom.getPlayers()) {
-					if (!player.isDead()) {
-						player.incrementScore(1000);
-						killPlayer(player, currentRoom);
+			currentRoom.lockJoinLock();
+			try {
+				if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
+					for (Player player : currentRoom.getPlayers()) {
+						if (!player.isDead()) {
+							player.incrementScore(1000);
+							killPlayer(player, currentRoom);
+						}
 					}
+					currentRoom.setInGame(false);
 				}
-				currentRoom.setInGame(false);
+			}finally {
+				currentRoom.unlockJoinLock();
 			}
+			
 
 			json.put("event", "GAME STATE UPDATE");
 			json.putPOJO("players", arrayNodePlayers);

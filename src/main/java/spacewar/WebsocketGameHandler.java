@@ -80,7 +80,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 						room.unlockJoinLock();
 					}
 					msg.put("event", "JOIN ROOM");
-					// msg.put("room", "GLOBAL");
 					msg.put("name", node.path("name").asText());
 					msg.put("mode", node.path("mode").asInt());
 					msg.put("inGame", room.isInGame());
@@ -161,7 +160,6 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				break;
 			case "UPDATE ROOMS":
 				ArrayNode arrayNodeRooms = mapper.createArrayNode();
-				// Update rooms
 				for (Room nRoom : game.getRooms()) {
 					ObjectNode jsonRoom = mapper.createObjectNode();
 					jsonRoom.put("creator", nRoom.getCreator());
