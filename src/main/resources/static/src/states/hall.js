@@ -1,16 +1,15 @@
 Spacewar.hallState = function(game) {
-    
+    var bReturnHall;
     }
     
     Spacewar.hallState.prototype = {
     
         init : function() {
-            if (game.global.DEBUG_MODE) {
-                console.log("[DEBUG] Entering **HALL OF FAME** state");
-            }
+
         },
     
         preload : function() {
+            bReturnHall =  game.add.button(950, 15, 'bClose', returnToMain, this)
         },
     
         create : function() {
@@ -42,4 +41,8 @@ Spacewar.hallState = function(game) {
             arra[i+1] = key;
         }
         return arra;
+    }
+
+    function returnToMain(){
+        game.state.start('lobbyState')
     }

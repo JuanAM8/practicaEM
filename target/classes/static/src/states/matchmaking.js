@@ -1,6 +1,9 @@
 Spacewar.matchmakingState = function(game) {
 	var bMatchmaking;
 	var bUpdate;
+	var bClassicJoin;
+	var bRoyalJoin;
+	var bReturnMM;
 }
 
 Spacewar.matchmakingState.prototype = {
@@ -12,19 +15,23 @@ Spacewar.matchmakingState.prototype = {
 	},
 
 	preload : function() {
-		/*if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Joining room...");
-		}
-		let message = {
-			event : 'JOIN ROOM'
-		}
-		game.global.socket.send(JSON.stringify(message))
-		*/
+		updateRooms();
+
 	},
 
 	create : function() {
 		bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
 		bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', onClickMatchmaking, this)
+		
+		bClassicJoin = game.add.button(game.world.centerX - 400, game.world.centerY, 'bClassic', matchmaking.bind(this, 0), this)
+		bRoyalJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bRoyal', matchmaking.bind(this, 1), this)
+		bReturnMM = game.add.button(950, 15, 'bClose', returnToRooms, this)
+		bClassicJoin.input.enabled = false
+		bClassicJoin.visible = false
+		bRoyalJoin.input.enabled = false
+		bRoyalJoin.visible = false
+		bReturnMM.input.enabled = false
+		bReturnMM.visible = false
 		/*let roomPrueba = game.add.button(20, 30, 'roomInfo', updateRooms, this)
 		let textPrueba = game.add.text(20, 30, "Modo: " + this.mode + " Nombre: " + this.name 
 			+ "Jugadores: " + this.numPlayers + "Creador: " + this.creator, { font: "bold 10px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
@@ -56,8 +63,37 @@ function updateRooms(){
 }
 
 function onClickMatchmaking(){
-	var bClassicJoin = game.add.button(game.world.centerX - 400, game.world.centerY, 'bClassic', matchmaking.bind(this, 0), this)
-	var bRoyalJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bRoyal', matchmaking.bind(this, 1), this)
+	bClassicJoin.input.enabled = true
+	bClassicJoin.visible = true
+	bRoyalJoin.input.enabled = true
+	bRoyalJoin.visible = true
+	bReturnMM.input.enabled = true
+	bReturnMM.visible = true
+	bUpdate.input.enabled = false
+	bUpdate.visible = false
+	bMatchmaking.input.enabled = false
+	bMatchmaking.visible = false
+	for (var r of game.global.rooms){
+		r.image.visible = false
+		r.image.input.enabled = false
+	}
+}
+
+function returnToRooms(){
+	bClassicJoin.input.enabled = false
+	bClassicJoin.visible = false
+	bRoyalJoin.input.enabled = false
+	bRoyalJoin.visible = false
+	bReturnMM.input.enabled = false
+	bReturnMM.visible = false
+	bUpdate.input.enabled = true
+	bUpdate.visible = true
+	bMatchmaking.input.enabled = true
+	bMatchmaking.visible = true
+	for (var r of game.global.rooms){
+		r.image.visible = true
+		r.image.input.enabled = true
+	}
 }
 
 function matchmaking(_mode){
@@ -76,3 +112,4 @@ function joinRoom(_name, _mode){
 	};
 	game.global.socket.send(JSON.stringify(message));
 }
+

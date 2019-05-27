@@ -241,6 +241,7 @@ window.onload = function() {
 			}
 			break;
 		case 'HALL OF FAME':
+			game.global.hallOfFame = [];
 			for(var playerScore of msg.hall){
 				let scoreTuple = [playerScore.name, playerScore.score];
 				//let scoreText = playerScore.name + " : " + playerScore.score + "\n";

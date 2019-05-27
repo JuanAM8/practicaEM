@@ -1,8 +1,10 @@
+vv:1000
 juan:1800
 mememe:0
 juu:1000
-ridley:0
 loliyo:0
+ridley:0
+loko:0
 noobMaster69:18300
 xuloQCastiga:0
 moniak:0
@@ -17,8 +19,10 @@ kekek:0
 sans:7700
 trevorWorstBelmont:0
 julio:500
+klk:1500
 renoRenardo:500
 sabs+:500
+o:1000
 cxxa:0
 kiko:0
 starku:500
