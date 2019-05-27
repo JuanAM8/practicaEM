@@ -27,7 +27,7 @@ public class Room {
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean inGame;
 	private int avgScore;//para la dificultad
-	private Lock joinLock = new ReentrantLock();
+	private Lock joinLock = new ReentrantLock();//cerrojo para las variables del numero de jugadores y jugadores vivos
 	
 	
 	public Room(String name, String creator, int mode) {

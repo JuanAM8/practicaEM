@@ -31,7 +31,7 @@ public class Player extends Spaceship {
 		this.life = 10;
 		this.dead = false;
 		this.score = 0;
-		this.totalScore = 0;//se cambiara lo que venga del registro
+		this.totalScore = 0;//se cambiara a lo que venga del registro
 		this.ammo = new AtomicInteger(MAX_AMMO);
 		this.setGas(MAX_GAS);
 	}

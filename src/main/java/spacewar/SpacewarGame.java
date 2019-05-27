@@ -131,7 +131,6 @@ public class SpacewarGame {
 	}
 
 	public void startGameLoop(Room room) {
-		System.out.println("game loop iniciado");
 		room.scheduler = Executors.newScheduledThreadPool(1);
 		room.scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
@@ -151,7 +150,6 @@ public class SpacewarGame {
 				System.err.println("Execption sending message to player " + player.getSession().getId());
 				ex.printStackTrace(System.err);
 				this.removePlayer(player);
-				// borrar de room tambien
 			}
 		}
 	}
@@ -177,7 +175,6 @@ public class SpacewarGame {
 
 		ObjectNode msg = mapper.createObjectNode();
 
-		//msg.put("event", "PLAYER EXITED");
 		msg.put("event", "PLAYER DIED");
 		msg.put("playerid", player.getPlayerId());
 		broadcast(msg.toString(), room);
@@ -268,7 +265,6 @@ public class SpacewarGame {
 					if (!player.isDead()) {
 						if ((projectile.getOwner().getPlayerId() != player.getPlayerId())
 								&& player.intersect(projectile)) {
-							// System.out.println("Player " + player.getPlayerId() + " was hit!!!");
 							projectile.setHit(true);
 							player.decrementLife(2);
 							projectile.getOwner().incrementScore(100);
