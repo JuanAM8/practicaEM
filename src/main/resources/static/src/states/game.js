@@ -3,6 +3,11 @@ Spacewar.gameState = function(game) {
 	this.fireBullet
 	this.numStars = 100 // Should be canvas size dependant
 	this.maxProjectiles = 800 // 8 per player
+	var buttonShow
+	var buttonHide
+	var gameChat
+	var buttonChat
+	var userMessage
 }
 var arrayScores = [];
 var resultsText;
@@ -53,6 +58,17 @@ Spacewar.gameState.prototype = {
 		game.global.remainingGas = game.add.text(200, 0, game.global.myPlayer.gas, style);
 
 		game.global.powerup.image = game.add.sprite(0, 0 , 'PUammo')
+
+		//Chat
+		gameChat = game.add.image(825, 200, 'chatBox')
+		gameChat.visible = false
+		buttonChat = game.add.button(825, 530, 'bChat', chatInput, this)
+		buttonChat.visible = false
+		buttonChat.input.enabled = false
+		buttonHide = game.add.button(825, 570, 'bHide', hideChat, this)
+		buttonHide.visible = false
+		buttonHide.input.enabled = false
+		buttonShow = game.add.button(825, 570, 'bShow', showChat, this)
 	},
 
 	create : function() {
@@ -88,7 +104,6 @@ Spacewar.gameState.prototype = {
 
 		//Boton salir de partida
 		game.add.button(800, 0, 'bClose', exitGame.bind(this), this)
-
 	},
 
 	update : function() {
@@ -172,4 +187,29 @@ function resultsString(){
 		score += (i+1) + ". " + arrayScores[i][0] + " : " + arrayScores[i][1] + "\n";	
 	}
 	return score
+}
+
+function showChat(){
+	buttonShow.visible = false
+	buttonShow.input.enabled = false
+	buttonHide.visible = true
+	buttonHide.input.enabled = true
+	gameChat.visible = true
+	buttonChat.visible = true
+	buttonChat.input.enabled = true
+}
+
+function hideChat(){
+	buttonShow.visible = true
+	buttonShow.input.enabled = true
+	buttonHide.visible = false
+	buttonHide.input.enabled = false
+	gameChat.visible = false
+	buttonChat.visible = false
+	buttonChat.input.enabled = false
+}
+
+function chatInput(){
+	userMessage = prompt('Escribe tu mensaje')
+	console.log(userMessage)
 }

@@ -24,7 +24,7 @@ Spacewar.matchmakingState.prototype = {
 
 	create : function() {
 		bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
-		bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', matchmaking, this)
+		bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', onClickMatchmaking, this)
 		/*let roomPrueba = game.add.button(20, 30, 'roomInfo', updateRooms, this)
 		let textPrueba = game.add.text(20, 30, "Modo: " + this.mode + " Nombre: " + this.name 
 			+ "Jugadores: " + this.numPlayers + "Creador: " + this.creator, { font: "bold 10px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
@@ -55,13 +55,18 @@ function updateRooms(){
 	game.global.socket.send(JSON.stringify(msg))
 }
 
-function matchmaking(){
-	let roomMode = parseInt(prompt("Modo de juego", "1"));
+function onClickMatchmaking(){
+	var bClassicJoin = game.add.button(game.world.centerX - 400, game.world.centerY, 'bClassic', matchmaking.bind(this, 0), this)
+	var bRoyalJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bRoyal', matchmaking.bind(this, 1), this)
+}
+
+function matchmaking(_mode){
 	let msg = new Object();
 	msg.event = 'MATCHMAKING';
-	msg.mode = roomMode;
+	msg.mode = _mode;
 	game.global.socket.send(JSON.stringify(msg))
 }
+
 
 function joinRoom(_name, _mode){
 	let message = {

@@ -22,6 +22,8 @@ Spacewar.preloadState.prototype = {
 		game.load.image('background', 'assets/images/fondo.png');		
 		game.load.image('bCreateRoom', 'assets/images/crearSala.png');
 		game.load.image('bJoinRoom', 'assets/images/unirseSala.png');
+		game.load.image('bClassic', 'assets/images/modo1.png');
+		game.load.image('bRoyal', 'assets/images/modo2.png');
 		game.load.image('bStart', 'assets/images/start.png');
 		game.load.image('bMode1', 'assets/images/modo1.png');
 		game.load.image('bMode2', 'assets/images/modo2.png');
@@ -35,6 +37,10 @@ Spacewar.preloadState.prototype = {
 		game.load.image('bHallOfFame', 'assets/images/hof.png');
 		game.load.image('PUammo', 'assets/images/PUammo.png');
 		game.load.image('PUgas', 'assets/images/PUgas.png');
+		game.load.image('chatBox', 'assets/images/chatBox.png');
+		game.load.image('bShow', 'assets/images/botonDespliegue.png');
+		game.load.image('bHide', 'assets/images/botonOcultar.png');
+		game.load.image('bChat', 'assets/images/chatButton.png');
 
 	},
 

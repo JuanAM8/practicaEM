@@ -71,7 +71,7 @@ window.onload = function() {
 					game.global.waiting = true;
 					game.time.events.add(Phaser.Timer.SECOND * 5, joinRoom.bind(this, msg.name, msg.mode), this);
 				} else {
-					game.global.waiting = false;
+					game.global.waiting = false;					
 				}
 				
 			}
