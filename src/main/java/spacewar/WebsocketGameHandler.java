@@ -1,15 +1,6 @@
 package spacewar;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.web.socket.CloseStatus;
@@ -70,36 +61,57 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				// añade jugador a la room
 				boolean hasEntered = false;
 				room = game.getRoom(node.path("name").asText());
-				if ((room.getNumberOfPlayers() < MAXPLAYERS_BR && room.getMode() == 1 && 
-						room.getAlivePlayers() != 0) || (room.getNumberOfPlayers() < MAXPLAYERS_CLASSIC
-						&& room.getMode() == 0 && room.getAlivePlayers() != 0)) {
-					hasEntered = true;
-					player.resetInGame();
-					player.setRoomName(node.path("name").asText());
-					room.addPlayer(player);
-					if (room.isInGame()) {
-						room.incrementAlivePlayers();
+				if(room != null) {
+					room.lockJoinLock();
+					try {
+						if ((room.getNumberOfPlayers() < MAXPLAYERS_BR && room.getMode() == 1 && 
+								room.getAlivePlayers() != 0) || (room.getNumberOfPlayers() < MAXPLAYERS_CLASSIC
+								&& room.getMode() == 0 && room.getAlivePlayers() != 0)) {
+							hasEntered = true;
+							player.resetInGame();
+							player.setRoomName(node.path("name").asText());
+							room.addPlayer(player);
+							if (room.isInGame()) {
+								room.incrementAlivePlayers();
+							}
+							game.addRoom(room);
+						}
+					}finally {
+						room.unlockJoinLock();
 					}
-					game.addRoom(room);
-				}
-				msg.put("event", "JOIN ROOM");
-				// msg.put("room", "GLOBAL");
-				msg.put("name", node.path("name").asText());
-				msg.put("mode", node.path("mode").asInt());
-				msg.put("inGame", room.isInGame());
-				msg.put("hasEntered", hasEntered);
-				// Busca la Room con ese nombre y mete al jugador en dicha room.
-				player.getSession().sendMessage(new TextMessage(msg.toString()));
-				if (room.getAlivePlayers() == -1 && hasEntered) {
-					if ((room.getNumberOfPlayers() == MAXPLAYERS_BR && room.getMode() == 1)
-							|| (room.getNumberOfPlayers() == MAXPLAYERS_CLASSIC && room.getMode() == 0)) {
-						game.startRoomGame(room);
-					} else if (room.getNumberOfPlayers() > 2  && room.getMode() == 1) {
-						Player auxCreator = room.searchPlayer(room.getCreator());
-						msg.put("event", "ROOM READY");
-						auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+					msg.put("event", "JOIN ROOM");
+					// msg.put("room", "GLOBAL");
+					msg.put("name", node.path("name").asText());
+					msg.put("mode", node.path("mode").asInt());
+					msg.put("inGame", room.isInGame());
+					msg.put("hasEntered", hasEntered);
+					msg.put("roomExists", true);
+					//Comprueba si debe empezar la partida o si se ha alcanzado el minimo de jugadores para empezar el battle royal
+					player.getSession().sendMessage(new TextMessage(msg.toString()));
+					
+					room.lockJoinLock();
+					try {
+						if (room.getAlivePlayers() == -1 && hasEntered) {
+							if ((room.getNumberOfPlayers() == MAXPLAYERS_BR && room.getMode() == 1)
+									|| (room.getNumberOfPlayers() == MAXPLAYERS_CLASSIC && room.getMode() == 0)) {
+								game.startRoomGame(room);
+							} else if (room.getNumberOfPlayers() > 2  && room.getMode() == 1) {
+								Player auxCreator = room.searchPlayer(room.getCreator());
+								msg.put("event", "ROOM READY");
+								auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+							}
+						}
+					}finally {
+						room.unlockJoinLock();
 					}
+					
+				}else {
+					msg.put("event", "JOIN ROOM");
+					msg.put("hasEntered", hasEntered);
+					msg.put("roomExists", false);
+					player.getSession().sendMessage(new TextMessage(msg.toString()));
 				}
+				
 
 				break;
 			case "UPDATE MOVEMENT":
@@ -164,39 +176,54 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "START MATCH":
+				
 				room = game.getRoom(player.getRoomName());
-				game.startRoomGame(room);
+				room.lockJoinLock();
+				try {
+					game.startRoomGame(room);
+				}finally {
+					room.unlockJoinLock();
+				}
 				break;
 			case "EXIT ROOM":
 				room = game.getRoom(player.getRoomName());
-				room.removePlayer(player);
-				player.setRoomName("");
-				if (room.getNumberOfPlayers() == 0) {
-					game.removeRoom(room);
-				} else {
-					game.addRoom(room);
-				}
-				msg.put("event", "EXIT ROOM");
-				player.getSession().sendMessage(new TextMessage(msg.toString()));
-
-				if (room.getNumberOfPlayers() < 3) {
-					msg.put("event", "ROOM NOT READY");
-					Player exitedCreator = room.searchPlayer(room.getCreator());
-					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
-				}
-				break;
-			case "EXIT GAME":
-				if (player.getRoomName() != "") {
-					room = game.getRoom(player.getRoomName());
+				room.lockJoinLock();
+				try {
 					room.removePlayer(player);
-					room.decrementAlivePlayers();
 					player.setRoomName("");
 					if (room.getNumberOfPlayers() == 0) {
 						game.removeRoom(room);
 					} else {
 						game.addRoom(room);
 					}
+					msg.put("event", "EXIT ROOM");
+					player.getSession().sendMessage(new TextMessage(msg.toString()));
 
+					if (room.getNumberOfPlayers() < 3) {
+						msg.put("event", "ROOM NOT READY");
+						Player exitedCreator = room.searchPlayer(room.getCreator());
+						exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+					}
+				}finally {
+					room.unlockJoinLock();
+				}
+				break;
+			case "EXIT GAME":
+				if (player.getRoomName() != "") {
+					room = game.getRoom(player.getRoomName());
+					room.lockJoinLock();
+					try {
+						room.removePlayer(player);
+						room.decrementAlivePlayers();
+						player.setRoomName("");
+						if (room.getNumberOfPlayers() == 0) {
+							game.removeRoom(room);
+						} else {
+							game.addRoom(room);
+						}
+					}finally {
+						room.unlockJoinLock();
+					}
 					msg.put("event", "PLAYER EXITED");
 					msg.put("playerid", player.getPlayerId());
 					game.broadcast(msg.toString(), room);
@@ -264,24 +291,36 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			game.broadcast(msg.toString(), roomAux);
 			
 			Player exitedCreator = roomAux.searchPlayer(roomAux.getCreator());
-			roomAux.removePlayer(player);
-			if (roomAux.isInGame()) {
-				roomAux.decrementAlivePlayers();
-			} else if (exitedCreator != player) {
-				if (roomAux.getNumberOfPlayers() == 1) {
-					msg.put("event", "ROOM NOT READY");
-					exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+			boolean roomRemoved = false;
+			roomAux.lockJoinLock();
+			try {
+				roomAux.removePlayer(player);
+				if (roomAux.isInGame()) {
+					roomAux.decrementAlivePlayers();
+				} else if (exitedCreator != player) {
+					if (roomAux.getNumberOfPlayers() == 1) {
+						msg.put("event", "ROOM NOT READY");
+						exitedCreator.getSession().sendMessage(new TextMessage(msg.toString()));
+					}
+				} else if (exitedCreator == player && roomAux.getNumberOfPlayers() > 0 ) {
+					for (Player p : roomAux.getPlayers()) {
+						p.setRoomName("");
+					}
+					msg.put("event", "ROOM REMOVED");
+					game.broadcast(msg.toString(), roomAux);
+					roomAux.unlockJoinLock();//desbloqueamos el cerrojo antes de borrar la sala
+					game.removeRoom(roomAux);
+					roomRemoved = true;
+				} else if (roomAux.getNumberOfPlayers() == 0) {
+					roomAux.unlockJoinLock();//desbloqueamos el cerrojo antes de borrar la sala
+					game.removeRoom(roomAux);
+					roomRemoved = true;
 				}
-			} else if (exitedCreator == player && roomAux.getNumberOfPlayers() > 0 ) {
-				for (Player p : roomAux.getPlayers()) {
-					p.setRoomName("");
+			}finally {
+				if(!roomRemoved) {
+					roomAux.unlockJoinLock();
 				}
-				msg.put("event", "ROOM REMOVED");
-				game.broadcast(msg.toString(), roomAux);
-				game.removeRoom(roomAux);
-			} else if (roomAux.getNumberOfPlayers() == 0) {
-				game.removeRoom(roomAux);
-			}		
+			}
 		}
 	}
 }

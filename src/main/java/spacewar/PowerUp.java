@@ -5,7 +5,7 @@ public class PowerUp extends SpaceObject {
 	private String type;
 	
 	public PowerUp(int id) {
-		this.setCollisionFactor(200);
+		this.setCollisionFactor(400);
 		this.id = id;
 		this.type = getRandomType();
 		this.initPowerup();

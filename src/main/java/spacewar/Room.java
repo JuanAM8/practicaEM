@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Room {
 
@@ -23,17 +23,18 @@ public class Room {
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(15);
 	private PowerUp currentPU;
-	private int alivePlayers;
+	private AtomicInteger alivePlayers;
 	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private boolean inGame;
 	private int avgScore;//para la dificultad
+	private Lock joinLock = new ReentrantLock();
 	
 	
 	public Room(String name, String creator, int mode) {
 		this.name = name;
 		this.creator = creator;
 		this.mode = mode;
-		this.alivePlayers = -1;
+		this.alivePlayers = new AtomicInteger(-1);
 		this.inGame = false;
 		computeAvgScore();
 	}
@@ -89,19 +90,19 @@ public class Room {
 	}
 
 	public int getAlivePlayers() {
-		return alivePlayers;
+		return alivePlayers.get();
 	}
 
 	public void setAlivePlayers(int alivePlayers) {
-		this.alivePlayers = alivePlayers;
+		this.alivePlayers.set(alivePlayers);
 	}
 	
 	public void decrementAlivePlayers() {
-		this.alivePlayers--;
+		this.alivePlayers.decrementAndGet();
 	}
 	
 	public void incrementAlivePlayers() {
-		this.alivePlayers++;
+		this.alivePlayers.incrementAndGet();
 	}
 
 	public boolean isInGame() {
@@ -171,5 +172,13 @@ public class Room {
 			messages.add(msg);
 		}
 		return messages;
+	}
+	
+	public void lockJoinLock() {
+		this.joinLock.lock();
+	}
+	
+	public void unlockJoinLock() {
+		this.joinLock.unlock();
 	}
 }

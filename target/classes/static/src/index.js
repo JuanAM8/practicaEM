@@ -66,7 +66,7 @@ window.onload = function() {
 				}else{
 					game.state.start('roomState')
 				}
-			}else{
+			}else if (msg.roomExists){
 				let answer = confirm('Te has pasao bacalao, ¿Volver a intentar en 5 segundos?')
 				if (answer){
 					game.global.waiting = true;
@@ -75,6 +75,9 @@ window.onload = function() {
 					game.global.waiting = false;					
 				}
 				
+			}else{
+				game.global.waiting = false;
+				alert("Esta sala ya no existe")
 			}
 			break
 		case 'LOG IN':
