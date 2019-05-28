@@ -2,15 +2,15 @@ Spacewar.gameState = function(game) {
 	this.bulletTime
 	this.fireBullet
 	this.numStars = 100 // Should be canvas size dependant
-	this.maxProjectiles = 800 // 8 per player
+	this.maxProjectiles = 800 // 100 per player
 	var buttonShow
 	var buttonHide
 	var gameChat
 	var buttonChat
 	var userMessage
 }
-var arrayScores = [];
-var resultsText;
+var arrayScores = [];//guarda las puntuaciones de todos los jugadores y su nombre
+var resultsText;//texto que se muestra cuando muere/gana
 Spacewar.gameState.prototype = {
 
 	init : function() {
@@ -51,11 +51,12 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
 		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);
 		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
+		//Informacion exclusiva del jugador (puntuacion, municion y combustible)
 		game.global.myPlayer.currentScore = game.add.text(0,0, 'Puntuación: ' + game.global.myPlayer.score, style);
-		//Solo cliente
 		game.global.remainingAmmo = game.add.text(200, 0, 'Munición: ' + game.global.myPlayer.ammo, style);
 		game.global.remainingGas = game.add.text(400, 0, 'Combustible: ' + game.global.myPlayer.gas, style);
 
+		//sprite del powerup que hay en pantalla (se inicia en 0,0 pero luego se relocaliza)
 		game.global.powerup.image = game.add.sprite(0, 0 , 'PUammo')
 
 		//Chat	
@@ -88,6 +89,7 @@ Spacewar.gameState.prototype = {
 		this.aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
 		this.dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
 		this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		//Tecla anadida de turbo
 		this.shiftKey = game.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
 
 		// Stop the following keys from propagating up to the browser
@@ -96,7 +98,8 @@ Spacewar.gameState.prototype = {
 				Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.SHIFT ]);
 
 		game.camera.follow(game.global.myPlayer.image);
-		//Para todos
+		
+		//Nombre y vida restante que sigue al sprite del jugador
 		game.global.myPlayer.text.x = game.global.myPlayer.image.x;
 		game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
 		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
@@ -136,7 +139,7 @@ Spacewar.gameState.prototype = {
 		
 		//Envia mensaje con que hay movimiento
 		game.global.socket.send(JSON.stringify(msg))
-		//Debe mostrarse para todos
+		//Se actualiza la posicion y contenido del texto hasta que son borrados al morir
 		if (typeof game.global.myPlayer.text != 'undefined'){
 			game.global.myPlayer.text.x = game.global.myPlayer.image.x;
 			game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
@@ -144,31 +147,33 @@ Spacewar.gameState.prototype = {
 			game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
 			game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 		}
-		//Solo cliente
-		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+		//Actualiza el texto estatico
 		game.global.remainingAmmo.setText('Munición: ' + game.global.myPlayer.ammo);
 		game.global.myPlayer.currentScore.setText('Puntuación: ' + game.global.myPlayer.score);
 		game.global.remainingGas.setText('Combustible: ' + game.global.myPlayer.gas);
 		
-				
+		//Actualiza los resultados cuando ha perdido/ganado
 		if (typeof resultsText !== 'undefined'){
 			resultsText.setText(resultsString());
 		}
 	}
 }
 
+//Pide al sevidor salir del juego
 function exitGame(){
 	let msg = new Object();
 	msg.event = 'EXIT GAME';
 	game.global.socket.send(JSON.stringify(msg))
 }
 
+//Muestra los resultados al jugador
 function showResults(){
 	var resultsImage = game.add.image(400, 0, 'results');
 	resultsText = game.add.text(400, 150, resultsString(), { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
 	var bReturn = game.add.button(380, 490, 'bReturnToLobby', exitGame.bind(this), this)
 }
 
+//Devuelve las puntuaciones ordenadas
 function resultsString(){
 	arrayScores = [];
 	let tuple;
@@ -188,6 +193,7 @@ function resultsString(){
 	return score
 }
 
+//Despliega el chat
 function showChat(){
 	buttonShow.visible = false
 	buttonShow.input.enabled = false
@@ -199,6 +205,7 @@ function showChat(){
 	game.global.chat.visible = true
 }
 
+//Oculta el chat
 function hideChat(){
 	buttonShow.visible = true
 	buttonShow.input.enabled = true
@@ -210,6 +217,7 @@ function hideChat(){
 	game.global.chat.visible = false
 }
 
+//Permite escribir un mensaje y lo envia al servidor
 function chatInput(){
 	userMessage = prompt('Escribe tu mensaje')
 	let msg = new Object();

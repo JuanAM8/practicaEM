@@ -16,6 +16,7 @@ Spacewar.hallState = function(game) {
             let titleHall = game.add.text(300, 110, "MEJORES PUNTUACIONES", { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
             let hallOffset = 35;
             game.global.hallOfFame = ordenacionInsercion(game.global.hallOfFame);
+            //Muestra los 10 jugadores con mas puntos de lo que recibe del servidor
             for (var i = 0; i < 10; i++){
                 if (game.global.hallOfFame.length > i){
                     let hallText = (i+1) + ". " + game.global.hallOfFame[i][0] + " : " + game.global.hallOfFame[i][1] + "\n";
@@ -28,7 +29,7 @@ Spacewar.hallState = function(game) {
         update : function() {
         }
     }
-
+    //Ordena un array por orden descendente de su valor
     function ordenacionInsercion(arra){
         for (var j = 1; j < arra.length; j++){
             var key = arra[j];
@@ -42,6 +43,7 @@ Spacewar.hallState = function(game) {
         return arra;
     }
 
+    //Vuelve al lobby
     function returnToMain(){
         game.state.start('lobbyState')
     }

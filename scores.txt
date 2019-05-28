@@ -10,7 +10,7 @@ guile:0
 moniak:0
 steve:6000
 Thanos:0
-cesar:1500
+cesar:3000
 thor:0
 erdrick:0
 monika:108400

@@ -27,14 +27,16 @@ Spacewar.menuState.prototype = {
 	}
 }
 
+//Al pulsar el boton, pide un nombre de usuario e inicia sesion
 function onClickStart(){
-	inputUser = prompt("Please enter your username:", "noobMaster69");
+	inputUser = prompt("Introduzca un nombre de usuario:", "noobMaster69");
 	game.global.myPlayer.userName = inputUser;
-	//Enviar nombre al servidor
+
 	let msg = new Object();
 	msg.event = 'LOG IN';
 	msg.userName = inputUser;
 	game.global.socket.send(JSON.stringify(msg))
+	
 	if (typeof game.global.myPlayer.id !== 'undefined') {
 		game.state.start('lobbyState')
 	}

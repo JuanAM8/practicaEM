@@ -29,6 +29,7 @@ Spacewar.lobbyState.prototype = {
 	}
 }
 
+//Oculta los botones y muestra los posibles modos a escoger
 function onClickCreate(){
 	bJoin.input.enabled = false
 	bJoin.visible = false	
@@ -40,6 +41,7 @@ function onClickCreate(){
 	var bRoyal = game.add.button(game.world.centerX + 50, 250, 'bRoyal', onClickMode.bind(this, 1), this)
 }
 
+//Crea una sala con el modo indicado tras pedir un nombre
 function onClickMode(_mode){
 	let roomName = prompt("Please enter the name of the room:", "JustMonika");
 	//Subir la room
@@ -53,9 +55,12 @@ function onClickMode(_mode){
 	game.global.socket.send(JSON.stringify(msg))
 }
 
+//Cambia al estado en el que se seleccionan las salas existentes
 function onClickJoin(){
 	game.state.start('matchmakingState')
 }
+
+//Pide al servidor la informacion del muro de la fama
 function onClickHall(){
 	let msg = new Object();
 	msg.event = 'HALL OF FAME';

@@ -17,12 +17,14 @@ Spacewar.roomState.prototype = {
 	},
 
 	create : function() {
+		//muestra la info de la sala
 		let modeName = parseMode(game.global.myPlayer.room.mode);
 		let infoText = game.global.myPlayer.room.name + "\n" + modeName;
 		let style = { font: "bold 26px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" }
 		let roomNameText = game.add.text(270, 140, 'Nombre de la sala: ' + game.global.myPlayer.room.name, style);
 		let roomModeText = game.add.text(270, 220, 'Modo de juego: ' + modeName, style);
 		let roomCreatorText = game.add.text(270, 300, 'Nombre del creador: ' + game.global.myPlayer.room.creatorName, style);
+		//Solo pueden salir de la sala de espera los jugadores que no son el creador
 		if(!game.global.myPlayer.room.creator){
 			game.add.button(800, 0, 'bClose', exitRoom.bind(this), this)
 		}
@@ -33,6 +35,7 @@ Spacewar.roomState.prototype = {
 	}
 }
 
+//Devuelve el modo de juego segun su indice
 function parseMode(mode){
 	if (mode === 0){
 		return '1 vs 1';
@@ -43,12 +46,14 @@ function parseMode(mode){
 	}
 }
 
+//Pide al servidor que empiece la partida (solo puede el creador)
 function startMatch(){
 	let msg = new Object();
 	msg.event = 'START MATCH';
 	game.global.socket.send(JSON.stringify(msg))
 }
 
+//Pide al servidor salir de la sala
 function exitRoom(){
 	let msg = new Object();
 	msg.event = 'EXIT ROOM';

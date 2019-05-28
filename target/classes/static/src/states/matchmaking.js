@@ -33,6 +33,7 @@ Spacewar.matchmakingState.prototype = {
 		},
 
 	update : function() {
+		//comprueba si el jugador esta esperando a entrar a una sala y activa o desactiva los botones en funcion de ello
 		if (game.global.waiting){
 			for (var room of game.global.rooms){
 				room.image.input.enabled = false;
@@ -49,12 +50,14 @@ Spacewar.matchmakingState.prototype = {
 	}
 }
 
+//Pide al servidor la informacion de las salas existentes
 function updateRooms(){
 	let msg = new Object();
 	msg.event = 'UPDATE ROOMS';
 	game.global.socket.send(JSON.stringify(msg))
 }
 
+//Oculta las salas y los botones para mostrar los propios de escoger modo para el matchmaking automatico
 function onClickMatchmaking(){
 	bClassicJoin.input.enabled = true
 	bClassicJoin.visible = true
@@ -73,6 +76,7 @@ function onClickMatchmaking(){
 	}
 }
 
+//Realiza el proceso inverso a la anterior funcion
 function returnToRooms(){
 	bClassicJoin.input.enabled = false
 	bClassicJoin.visible = false
@@ -91,6 +95,7 @@ function returnToRooms(){
 	}
 }
 
+//Pide al servidor la sala mas apropiada para el modo escogido
 function matchmaking(_mode){
 	let msg = new Object();
 	msg.event = 'MATCHMAKING';
@@ -98,7 +103,7 @@ function matchmaking(_mode){
 	game.global.socket.send(JSON.stringify(msg))
 }
 
-
+//Pide entrar a la sala con los parametros que recibe
 function joinRoom(_name, _mode){
 	let message = {
 		event : 'JOIN ROOM',

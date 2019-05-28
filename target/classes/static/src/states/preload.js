@@ -16,7 +16,7 @@ Spacewar.preloadState.prototype = {
 		game.load.atlas('explosion', 'assets/atlas/explosion.png',
 				'assets/atlas/explosion.json',
 				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH)
-		//PLACEHOLDERS MENU
+		//Sprites del juego
 		game.load.image('background', 'assets/images/fondo.png');		
 		game.load.image('bCreateRoom', 'assets/images/crearSala.png');
 		game.load.image('bJoinRoom', 'assets/images/unirseSala.png');
@@ -40,7 +40,6 @@ Spacewar.preloadState.prototype = {
 		game.load.image('bHide', 'assets/images/botonOcultar.png');
 		game.load.image('bChat', 'assets/images/chatButton.png');
 		game.load.image('bannerRoom', 'assets/images/bannerSala.png')
-
 	},
 
 	create : function() {
