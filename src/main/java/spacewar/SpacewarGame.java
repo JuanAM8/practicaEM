@@ -33,22 +33,29 @@ public class SpacewarGame {
 
 	ObjectMapper mapper = new ObjectMapper();
 
-	// GLOBAL GAME ROOM
+	// Mapas de jugadores y proyectiles globales
 	private Map<String, Player> players = new ConcurrentHashMap<>();
 	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
 	private AtomicInteger numPlayers = new AtomicInteger();
-	// Pendiente de confirmar
+	
+	//Mapa de salas
 	private Map<String, Room> rooms = new ConcurrentHashMap<>();
+	
+	//Diccionarios de nombres de jugadores y salas para evitar repetidos
 	private Map<String, String> names = new ConcurrentHashMap<>();
 	private Map<String, String> roomNames = new ConcurrentHashMap<>();
+	//Puntuaciones historicas, sacadas de un fichero
 	public Map<String, Integer> savedScores = readFile();
 	
+	//Id del powerup
 	private AtomicInteger powerUpId = new AtomicInteger(0);
 
 	private SpacewarGame() {
 
 	}
 
+	//Intenta añadir un nombre al diccionario y devuelve false si ya existe
+	//Funciones atomicas
 	public synchronized boolean tryAddName(String name) {
 		if (names.containsKey(name)) {
 			return false;
@@ -100,6 +107,7 @@ public class SpacewarGame {
 		int count = this.numPlayers.decrementAndGet();
 	}
 
+	//Prepara la sala para empezar el juego, inicia el game loop y manda un mensaje a sus jugadores para que empiecen
 	public void startRoomGame(Room room) {
 		room.setAlivePlayers(room.getNumberOfPlayers());
 		room.spawnPowerUp(powerUpId.incrementAndGet());
@@ -129,18 +137,20 @@ public class SpacewarGame {
 		players.remove(projectile.getId(), projectile);
 	}
 
+	//Crea un nuevo hilo de game loop para una sala
 	public void startGameLoop(Room room) {
 		room.scheduler = Executors.newScheduledThreadPool(1);
 		room.scheduler.scheduleAtFixedRate(() -> tick(room), TICK_DELAY, TICK_DELAY, TimeUnit.MILLISECONDS);
 	}
 
+	//Detiene el hilo de una sala
 	public void stopGameLoop(Room room) {
 		if (room.scheduler != null) {
 			room.scheduler.shutdown();
 		}
 	}
 
-	// Pal chat
+	//Envia un mensaje a todos los jugadores de una sala
 	public void broadcast(String message, Room currentRoom) {
 		for (Player player : currentRoom.getPlayers()) {
 			try {
@@ -153,6 +163,7 @@ public class SpacewarGame {
 		}
 	}
 
+	//Envia un mensaje a todos los jugadores
 	public void broadcastToAll(String message) {
 		for (Player player : getPlayers()) {
 			try {
@@ -165,6 +176,9 @@ public class SpacewarGame {
 		}
 	}
 
+	//Cambia la sala para tener en cuenta la muerte de un jugador, guarda su puntuacion en el fichero y manda un mensaje a todos
+	//los jugadores de la sala para que lo borren de sus pantallas.
+	//Tambien avisa al jugador que ha muerto para que muestre sus resultados
 	public void killPlayer(Player player, Room room) {
 		player.kill();
 		player.incrementTotalScore(player.getScore());
@@ -187,6 +201,8 @@ public class SpacewarGame {
 		}
 	}
 
+	//Busca una sala apropiada para el modo de juego y puntuacion que recibe, si no encuentra ninguna,
+	//envia una dummy para notificar que no se ha encontrado ninguna
 	public Room matchmaking(int modeId, int score) {
 		int minDist = 999999999;
 		Room bestRoom = new Room("dummy", "monika", -1);
@@ -305,6 +321,7 @@ public class SpacewarGame {
 			if (removeBullets)
 				currentRoom.removeSomeProjectiles(bullets2Remove);
 
+			//Si solo queda un jugador vivo en la sala, mata al restante, muestra sus resultados y le da un bonus de puntos
 			currentRoom.lockJoinLock();
 			try {
 				if (currentRoom.getAlivePlayers() == 1 || currentRoom.getNumberOfPlayers() == 1) {
@@ -339,6 +356,7 @@ public class SpacewarGame {
 	// fuente:
 	// https://stackoverflow.com/questions/50142413/displaying-5-top-scores-from-txt-file-java
 	// fuente 2: https://stackabuse.com/reading-a-file-line-by-line-in-java/
+	//Lee el fichero de puntuaciones y crea un mapa con los nombres de los jugadores y sus puntuaciones globales
 	public Map<String, Integer> readFile() {
 		Map<String, Integer> map = new ConcurrentHashMap<>();
 		try {
@@ -357,6 +375,7 @@ public class SpacewarGame {
 		return map;
 	}
 
+	//Reescribe las puntuaciones en el fichero
 	public void writeFile(Map<String, Integer> map) {
 		try {
 			FileWriter fw = new FileWriter("scores.txt");

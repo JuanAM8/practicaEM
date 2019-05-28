@@ -25,18 +25,10 @@ renoRenardo:500
 monika2:2500
 kiko:0
 starku:500
-1:0
-2:0
 juliojulio:0
-3:0
-4:0
 bandana dee:0
 agumon:4500
-5:0
-6:0
-7:1000
 luigimario:200
-8:4000
 AyumiTachibana:0
 travis:0
 sora:0

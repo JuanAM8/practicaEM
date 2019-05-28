@@ -14,20 +14,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+//Clase que define una sala
 public class Room {
 
 	private final String name;
 	private final String creator;
-	private final int mode;
-	private Map<String, Player> players = new ConcurrentHashMap<>();
-	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>();
-	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(15);
-	private PowerUp currentPU;
-	private AtomicInteger alivePlayers;
-	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	private boolean inGame;
-	private int avgScore;//para la dificultad
-	private Lock joinLock = new ReentrantLock();//cerrojo para las variables del numero de jugadores y jugadores vivos
+	private final int mode; //Indice del modo de juego
+	private Map<String, Player> players = new ConcurrentHashMap<>(); //Guarda los jugadores de la sala
+	private Map<Integer, Projectile> projectiles = new ConcurrentHashMap<>(); //Guarda los proyectiles de la sala
+	private	BlockingQueue<String> chat = new ArrayBlockingQueue<>(15); //Cola con los mensajes que van entrando del chat
+	private PowerUp currentPU; //Power up actualmente en pantalla
+	private AtomicInteger alivePlayers; //Numero de jugadores vivos
+	public ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1); //Cada sala tiene su game loop propio
+	private boolean inGame; //Define si la partida esta en curso
+	private int avgScore; //Puntuacion media de los jugadores que marca la dificultad
+	private Lock joinLock = new ReentrantLock(); //Cerrojo para las variables del numero de jugadores y jugadores vivos
 	
 	
 	public Room(String name, String creator, int mode) {
@@ -121,6 +122,7 @@ public class Room {
 		this.avgScore = avgScore;
 	}
 	
+	//Calcula la puntuacion media
 	public void computeAvgScore() {
 		int sum = 0;
 		for (Player player : this.players.values()) {
@@ -141,6 +143,7 @@ public class Room {
 		this.currentPU = currentPU;
 	}
 	
+	//Crea un nuevo powerup en una posicion y con un tipo nuevos
 	public void spawnPowerUp(int id) {
 		this.currentPU = new PowerUp(id);
 	}
@@ -166,6 +169,7 @@ public class Room {
 		}
 	}
 	
+	//Devuelve una lista con los mensajes de la cola sin modificarla
 	public List<String> messageList(){
 		List<String> messages = new ArrayList<>();
 		for (String msg : chat) {

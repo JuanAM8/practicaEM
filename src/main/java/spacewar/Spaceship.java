@@ -3,19 +3,19 @@ package spacewar;
 public class Spaceship extends SpaceObject {
 
 	private static final double SPACESHIP_SPEED = 0.6;
-	private static final double SPACESHIP_TURBO = 1.05;
+	private static final double SPACESHIP_TURBO = 1.05; //Multiplicador para la velocidad del turbo
 	private static final double SPACESHIP_BRAKES = 0.90;
 	private static final double SPACESHIP_ROTATION_SPEED = 3.00;
 	private static final int SPACESHIP_COLLISION_FACTOR = 400;
 	private static final double SPACE_FRICTION = 0.95;
-	private int gas;
+	private int gas; //Combustible del turbo
 
 	class LastMovement {
 		boolean thrust = false;
 		boolean brake = false;
 		boolean rotLeft = false;
 		boolean rotRight = false;
-		boolean turbo = false;
+		boolean turbo = false; //Variable anadida de aceleracion
 	}
 
 	private LastMovement lastMovement;
@@ -62,6 +62,7 @@ public class Spaceship extends SpaceObject {
 			this.incFacingAngle(SPACESHIP_ROTATION_SPEED);
 		}
 		
+		//Solo aumenta la velocidad cuando le queda combustible
 		if(this.lastMovement.turbo) {
 			if(this.getGas() > 0) {
 				this.multVelocity(SPACESHIP_TURBO);

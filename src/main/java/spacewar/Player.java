@@ -31,7 +31,7 @@ public class Player extends Spaceship {
 		this.life = 10;
 		this.dead = false;
 		this.score = 0;
-		this.totalScore = 0;//se cambiara a lo que venga del registro
+		this.totalScore = 0;
 		this.ammo = new AtomicInteger(MAX_AMMO);
 		this.setGas(MAX_GAS);
 	}
@@ -104,6 +104,8 @@ public class Player extends Spaceship {
 	public void incrementScore(int increment) {
 		this.score += increment;
 	}
+	
+	//Devuelve los valores por defecto y calcula otra posicion y angulo aleatorios
 	public void resetInGame() {
 		this.life = 10;
 		this.score = 0;
@@ -123,6 +125,7 @@ public class Player extends Spaceship {
 	}
 	public void incrementTotalScore(int increment) {
 		this.totalScore += increment;
+		//Evita overflow
 		if(this.totalScore > 9999999) {
 			this.totalScore = 9999999;
 		}

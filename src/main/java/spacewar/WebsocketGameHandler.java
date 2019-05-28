@@ -20,8 +20,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 	private ObjectMapper mapper = new ObjectMapper();
 	private AtomicInteger playerId = new AtomicInteger(0);
 	private AtomicInteger projectileId = new AtomicInteger(0);
-	private final int MAXPLAYERS_BR = 8;
-	private final int MAXPLAYERS_CLASSIC = 2;
+	private final int MAXPLAYERS_BR = 8; //Maximo de jugadores del modo battle royale
+	private final int MAXPLAYERS_CLASSIC = 2; //Maximo de jugadores del modo 1v1
 
 
 	@Override
@@ -48,7 +48,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			JsonNode node = mapper.readTree(message.getPayload());
 			ObjectNode msg = mapper.createObjectNode();
 			Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
-			Room room;
+			Room room; //Sala auxiliar
 
 			switch (node.get("event").asText()) {
 			case "JOIN":
@@ -58,7 +58,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "JOIN ROOM":
-				// añade jugador a la room
+				// Intenta entrar a la room solicitada si queda espacio y hace los cambios apropiados
 				boolean hasEntered = false;
 				room = game.getRoom(node.path("name").asText());
 				if(room != null) {
@@ -79,6 +79,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					}finally {
 						room.unlockJoinLock();
 					}
+					//Envia un mensaje al cliente de si ha conseguido entrar, si existe la sala y si hay partida empezada
 					msg.put("event", "JOIN ROOM");
 					msg.put("name", node.path("name").asText());
 					msg.put("mode", node.path("mode").asInt());
@@ -86,9 +87,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					msg.put("inGame", room.isInGame());
 					msg.put("hasEntered", hasEntered);
 					msg.put("roomExists", true);
-					//Comprueba si debe empezar la partida o si se ha alcanzado el minimo de jugadores para empezar el battle royal
 					player.getSession().sendMessage(new TextMessage(msg.toString()));
 					
+					//Comprueba si debe empezar la partida o si se ha alcanzado el minimo de jugadores para empezar el battle royale
 					room.lockJoinLock();
 					try {
 						if (room.getAlivePlayers() == -1 && hasEntered) {
@@ -96,6 +97,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 									|| (room.getNumberOfPlayers() == MAXPLAYERS_CLASSIC && room.getMode() == 0)) {
 								game.startRoomGame(room);
 							} else if (room.getNumberOfPlayers() > 2  && room.getMode() == 1) {
+								//Envia un mensaje al creador de la sala para que muestre el boton de iniciar partida
 								Player auxCreator = room.searchPlayer(room.getCreator());
 								msg.put("event", "ROOM READY");
 								auxCreator.getSession().sendMessage(new TextMessage(msg.toString()));
@@ -106,6 +108,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					}
 					
 				}else {
+					//Si no existe la sala, se notifica al cliente
 					msg.put("event", "JOIN ROOM");
 					msg.put("hasEntered", hasEntered);
 					msg.put("roomExists", false);
@@ -130,6 +133,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				}
 				break;
 			case "LOG IN":
+				//Intenta iniciar sesion en el servidor con el nombre que inserta el cliente
 				boolean success = game.tryAddName(node.path("userName").asText());
 				if (success) {
 					player.setUserName(node.path("userName").asText());
@@ -143,7 +147,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 				break;
 			case "CREATE ROOM":
+				//Intenta crear una sala nueva con el nombre que inserta el cliente
 				boolean successRoom = game.tryAddRoomName(node.path("room").get("name").asText());
+				//Si lo consigue, inserta a su creador en la sala
 				if (successRoom) {
 					room = new Room(node.path("room").get("name").asText(), node.path("room").get("creator").asText(),
 							node.path("room").get("mode").asInt());
@@ -161,6 +167,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE ROOMS":
+				//Devuelve al cliente la lista de salas
 				ArrayNode arrayNodeRooms = mapper.createArrayNode();
 				for (Room nRoom : game.getRooms()) {
 					ObjectNode jsonRoom = mapper.createObjectNode();
@@ -176,7 +183,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "START MATCH":
-				
+				//Inicia el game loop de una sala
 				room = game.getRoom(player.getRoomName());
 				room.lockJoinLock();
 				try {
@@ -186,6 +193,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				}
 				break;
 			case "EXIT ROOM":
+				//Saca al cliente que haya solicitado de la sala de espera y avisa al creador en caso de que ya no se pueda empezar partida
 				room = game.getRoom(player.getRoomName());
 				room.lockJoinLock();
 				try {
@@ -209,6 +217,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				}
 				break;
 			case "EXIT GAME":
+				//Saca al cliente de la partida y avisa al resto de jugadores de la sala para que lo borren de su pantalla
 				if (player.getRoomName() != "") {
 					room = game.getRoom(player.getRoomName());
 					room.lockJoinLock();
@@ -236,6 +245,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 				break;
 			case "MATCHMAKING":
+				//Devuelve al cliente una sala apropiada segun los parametros que envia
 				Room roomFound = game.matchmaking(node.get("mode").asInt(), player.getTotalScore());
 				msg.put("event", "MATCHMAKING");
 				msg.put("mode", roomFound.getMode());
@@ -243,6 +253,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "HALL OF FAME":
+				//Devuelve la lista de puntuaciones sin ordenar
 				ArrayNode arrayNodeHall = mapper.createArrayNode();
 				for (Entry<String, Integer> entry : game.savedScores.entrySet()) {
 					ObjectNode jsonHall = mapper.createObjectNode();
@@ -255,8 +266,8 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "CHAT MESSAGE":
+				//Guarda el mensaje que recibe en la cola del chat y envia a todos los clientes de la sala la cola actualizada.
 				String lastMessage = node.get("author").asText() + " : " + node.get("content").asText();
-				System.out.println(lastMessage);
 				room = game.getRoom(player.getRoomName());
 				room.pushMessage(lastMessage);
 				ArrayNode arrayNodeMessages = mapper.createArrayNode();
@@ -281,6 +292,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+		//Borra al jugador desconectado de la sala
 		Player player = (Player) session.getAttributes().get(PLAYER_ATTRIBUTE);
 		game.removePlayer(player);
 
@@ -292,6 +304,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			msg.put("playerid", player.getPlayerId());
 			game.broadcast(msg.toString(), roomAux);
 			
+			//Si el creador es el que se desconecta cuando esta en espera, borra la sala
 			Player exitedCreator = roomAux.searchPlayer(roomAux.getCreator());
 			boolean roomRemoved = false;
 			roomAux.lockJoinLock();
