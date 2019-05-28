@@ -1,11 +1,11 @@
 lucas:500
 banjo:0
-juan:9800
+juan:10300
 ridley:0
 dan:4000
 loko:0
 hulio:1000
-noobMaster69:38300
+noobMaster69:39800
 guile:0
 moniak:0
 steve:6000
@@ -13,10 +13,10 @@ Thanos:0
 cesar:3000
 thor:0
 erdrick:0
-monika:108400
+monika:109900
 sonic:0
 ness:0
-sans:11800
+sans:15800
 rayman:0
 paco:0
 mario:3500
