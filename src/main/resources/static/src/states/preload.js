@@ -5,9 +5,7 @@ Spacewar.preloadState = function(game) {
 Spacewar.preloadState.prototype = {
 
 	init : function() {
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Entering **PRELOAD** state");
-		}
+		
 	},
 
 	preload : function() {
@@ -41,6 +39,7 @@ Spacewar.preloadState.prototype = {
 		game.load.image('bShow', 'assets/images/botonDespliegue.png');
 		game.load.image('bHide', 'assets/images/botonOcultar.png');
 		game.load.image('bChat', 'assets/images/chatButton.png');
+		game.load.image('bannerRoom', 'assets/images/bannerSala.png')
 
 	},
 

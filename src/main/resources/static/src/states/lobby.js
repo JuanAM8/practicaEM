@@ -10,10 +10,7 @@ var bHall
 Spacewar.lobbyState.prototype = {
 
 	init : function() {
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Entering **LOBBY** state");
-		}
-		
+
 	},
 
 	preload : function() {
@@ -22,9 +19,9 @@ Spacewar.lobbyState.prototype = {
 
 	create : function() {
 		var newbg = game.add.sprite(0, 0, 'background');		
-		bCreate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bCreateRoom', onClickCreate, this)		
-		bJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bJoinRoom', onClickJoin, this)
-		bHall = game.add.button(game.world.centerX -400, game.world.centerY+150, 'bHallOfFame', onClickHall, this)
+		bCreate = game.add.button(game.world.centerX - 400, game.world.centerY-100, 'bCreateRoom', onClickCreate, this)		
+		bJoin = game.add.button(game.world.centerX + 50, game.world.centerY-100, 'bJoinRoom', onClickJoin, this)
+		bHall = game.add.button(game.world.centerX -180, game.world.centerY+50, 'bHallOfFame', onClickHall, this)
 	},
 
 	update : function() {
@@ -39,13 +36,12 @@ function onClickCreate(){
 	bCreate.visible = false
 	bHall.input.enabled = false
 	bHall.visible = false
-	var bClassic = game.add.button(game.world.centerX - 400, game.world.centerY, 'bClassic', onClickMode.bind(this, 0), this)
-	var bRoyal = game.add.button(game.world.centerX + 50, game.world.centerY, 'bRoyal', onClickMode.bind(this, 1), this)
+	var bClassic = game.add.button(game.world.centerX - 400, 250, 'bClassic', onClickMode.bind(this, 0), this)
+	var bRoyal = game.add.button(game.world.centerX + 50, 250, 'bRoyal', onClickMode.bind(this, 1), this)
 }
 
 function onClickMode(_mode){
 	let roomName = prompt("Please enter the name of the room:", "JustMonika");
-	//let roomMode = parseInt(prompt("Provisional: Modo de juego", "1"));
 	//Subir la room
 	let msg = new Object();
 	msg.event = 'CREATE ROOM';
@@ -54,7 +50,6 @@ function onClickMode(_mode){
 		name: roomName,
 		mode: _mode
 	}
-	console.log(msg.room);
 	game.global.socket.send(JSON.stringify(msg))
 }
 

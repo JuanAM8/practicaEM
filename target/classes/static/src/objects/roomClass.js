@@ -3,7 +3,6 @@ var MID_TIER = 12000;
 
 class Room {
     constructor(_creator, _name, _mode, _numPlayers, _offset, _avgScore){
-        console.log("Se crea")
         this.creator = _creator;
         this.name = _name;
         this.mode = _mode;

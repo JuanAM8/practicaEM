@@ -14,10 +14,9 @@ var resultsText;
 Spacewar.gameState.prototype = {
 
 	init : function() {
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Entering **GAME** state");
-		}
+
 	},
+
 	preload : function() {
 		arrayScores = []
 		game.global.otherPlayers = [];
@@ -52,10 +51,10 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.text.anchor.setTo(0.5, 0.5)
 		game.global.myPlayer.lifeText = game.add.text(50, 50, game.global.myPlayer.life, style);
 		game.global.myPlayer.lifeText.anchor.setTo(0.5, 0.5)
-		game.global.myPlayer.currentScore = game.add.text(100,0, game.global.myPlayer.score, style);
+		game.global.myPlayer.currentScore = game.add.text(0,0, 'Puntuación: ' + game.global.myPlayer.score, style);
 		//Solo cliente
-		game.global.remainingAmmo = game.add.text(0, 0, game.global.myPlayer.ammo, style);
-		game.global.remainingGas = game.add.text(200, 0, game.global.myPlayer.gas, style);
+		game.global.remainingAmmo = game.add.text(200, 0, 'Munición: ' + game.global.myPlayer.ammo, style);
+		game.global.remainingGas = game.add.text(400, 0, 'Combustible: ' + game.global.myPlayer.gas, style);
 
 		game.global.powerup.image = game.add.sprite(0, 0 , 'PUammo')
 
@@ -78,7 +77,6 @@ Spacewar.gameState.prototype = {
 		this.fireBullet = function() {
 			if (game.time.now > this.bulletTime) {
 				this.bulletTime = game.time.now + 250;
-				// this.weapon.fire()
 				return true
 			} else {
 				return false
@@ -105,7 +103,7 @@ Spacewar.gameState.prototype = {
 		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
 
 		//Boton salir de partida
-		game.add.button(800, 0, 'bClose', exitGame.bind(this), this)
+		game.add.button(962, 0, 'bClose', exitGame.bind(this), this)
 	},
 
 	update : function() {
@@ -136,22 +134,21 @@ Spacewar.gameState.prototype = {
 			msg.bullet = this.fireBullet()
 		}
 		
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Sending UPDATE MOVEMENT message to server")
-		}
 		//Envia mensaje con que hay movimiento
 		game.global.socket.send(JSON.stringify(msg))
 		//Debe mostrarse para todos
-		game.global.myPlayer.text.x = game.global.myPlayer.image.x;
-		game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
-		game.global.myPlayer.lifeText.setText(''+game.global.myPlayer.life);
-		game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
-		game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
+		if (typeof game.global.myPlayer.text != 'undefined'){
+			game.global.myPlayer.text.x = game.global.myPlayer.image.x;
+			game.global.myPlayer.text.y = game.global.myPlayer.image.y - 35;
+			game.global.myPlayer.lifeText.setText(''+game.global.myPlayer.life);
+			game.global.myPlayer.lifeText.x = game.global.myPlayer.image.x;
+			game.global.myPlayer.lifeText.y = game.global.myPlayer.image.y - 20;
+		}
 		//Solo cliente
 		var style = { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
-		game.global.remainingAmmo.setText(''+game.global.myPlayer.ammo);
-		game.global.myPlayer.currentScore.setText(''+game.global.myPlayer.score);
-		game.global.remainingGas.setText(''+game.global.myPlayer.gas);
+		game.global.remainingAmmo.setText('Munición: ' + game.global.myPlayer.ammo);
+		game.global.myPlayer.currentScore.setText('Puntuación: ' + game.global.myPlayer.score);
+		game.global.remainingGas.setText('Combustible: ' + game.global.myPlayer.gas);
 		
 				
 		if (typeof resultsText !== 'undefined'){
@@ -167,9 +164,9 @@ function exitGame(){
 }
 
 function showResults(){
-	var resultsImage = game.add.image(0, 0, 'results');
-	resultsText = game.add.text(0,30, resultsString(), { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
-	var bReturn = game.add.button(0, 500, 'bReturnToLobby', exitGame.bind(this), this)
+	var resultsImage = game.add.image(400, 0, 'results');
+	resultsText = game.add.text(400, 150, resultsString(), { font: "bold 22px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" })
+	var bReturn = game.add.button(380, 490, 'bReturnToLobby', exitGame.bind(this), this)
 }
 
 function resultsString(){

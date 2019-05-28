@@ -9,9 +9,7 @@ Spacewar.matchmakingState = function(game) {
 Spacewar.matchmakingState.prototype = {
 
 	init : function() {
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Entering **MATCH-MAKING** state");
-		}
+
 	},
 
 	preload : function() {
@@ -20,23 +18,18 @@ Spacewar.matchmakingState.prototype = {
 	},
 
 	create : function() {
-		bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY, 'bUpdateRooms', updateRooms, this)
-		bMatchmaking = game.add.button(game.world.centerX - 600, game.world.centerY, 'bMatchmaking', onClickMatchmaking, this)
+		bUpdate = game.add.button(game.world.centerX - 400, game.world.centerY+150, 'bUpdateRooms', updateRooms, this)
+		bMatchmaking = game.add.button(game.world.centerX + 100, game.world.centerY+150, 'bMatchmaking', onClickMatchmaking, this)
 		
 		bClassicJoin = game.add.button(game.world.centerX - 400, game.world.centerY, 'bClassic', matchmaking.bind(this, 0), this)
 		bRoyalJoin = game.add.button(game.world.centerX + 50, game.world.centerY, 'bRoyal', matchmaking.bind(this, 1), this)
-		bReturnMM = game.add.button(950, 15, 'bClose', returnToRooms, this)
+		bReturnMM = game.add.button(962, 0, 'bClose', returnToRooms, this)
 		bClassicJoin.input.enabled = false
 		bClassicJoin.visible = false
 		bRoyalJoin.input.enabled = false
 		bRoyalJoin.visible = false
 		bReturnMM.input.enabled = false
 		bReturnMM.visible = false
-		/*let roomPrueba = game.add.button(20, 30, 'roomInfo', updateRooms, this)
-		let textPrueba = game.add.text(20, 30, "Modo: " + this.mode + " Nombre: " + this.name 
-			+ "Jugadores: " + this.numPlayers + "Creador: " + this.creator, { font: "bold 10px Arial", fill: "#000000", boundsAlignH: "center", boundsAlignV: "middle" });
-		*/
-		//let roomPrueba = new Room("Juan", "NuevaRoom","TetrisBattleRoyale", 7);
 		},
 
 	update : function() {
@@ -76,6 +69,7 @@ function onClickMatchmaking(){
 	for (var r of game.global.rooms){
 		r.image.visible = false
 		r.image.input.enabled = false
+		r.text.visible = false
 	}
 }
 
@@ -93,6 +87,7 @@ function returnToRooms(){
 	for (var r of game.global.rooms){
 		r.image.visible = true
 		r.image.input.enabled = true
+		r.text.visible = true
 	}
 }
 

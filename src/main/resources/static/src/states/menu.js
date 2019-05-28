@@ -6,17 +6,11 @@ Spacewar.menuState = function(game) {
 Spacewar.menuState.prototype = {
 
 	init : function() {
-		if (game.global.DEBUG_MODE) {
-			console.log("[DEBUG] Entering **MENU** state");
-		}
 	},
 
 	preload : function() {
 		// In case JOIN message from server failed, we force it
 		if (typeof game.global.myPlayer.id == 'undefined') {
-			if (game.global.DEBUG_MODE) {
-				console.log("[DEBUG] Forcing joining server...");
-			}
 			let message = {
 				event : 'JOIN'
 			}
@@ -26,7 +20,7 @@ Spacewar.menuState.prototype = {
 
 	create : function() {
 		var bg = game.add.sprite(0, 0, 'background');
-		let bStart = game.add.button(game.world.centerX - 100, 250, 'bStart', onClickStart, this)
+		let bStart = game.add.button(game.world.centerX - 160, 250, 'bStart', onClickStart, this)
 	},
 
 	update : function() {

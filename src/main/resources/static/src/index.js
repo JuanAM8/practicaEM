@@ -24,18 +24,6 @@ window.onload = function() {
 	//Aqui establecemos el websocket
 	game.global.socket = new WebSocket("ws://127.0.0.1:8080/spacewar")
 	
-	//De momento solo hace cosas en DEBUG aqui
-	game.global.socket.onopen = () => {
-		if (game.global.DEBUG_MODE) {
-			console.log('[DEBUG] WebSocket connection opened.')
-		}
-	}
-
-	game.global.socket.onclose = () => {
-		if (game.global.DEBUG_MODE) {
-			console.log('[DEBUG] WebSocket connection closed.')
-		}
-	}
 	//Cuando recibe un mensaje, parsea lo que le llega
 	game.global.socket.onmessage = (message) => {
 		var msg = JSON.parse(message.data)
@@ -43,22 +31,16 @@ window.onload = function() {
 		//Entra al Switch
 		switch (msg.event) {
 		case 'JOIN':
-			if (game.global.DEBUG_MODE) {
-				console.log('[DEBUG] JOIN message recieved')
-				console.dir(msg)
-			}
 			//JOIN: Recoge la id del jugador y la nave que le da el servidor
 			game.global.myPlayer.id = msg.id
 			game.global.myPlayer.shipType = msg.shipType
-			if (game.global.DEBUG_MODE) {
-				console.log('[DEBUG] ID assigned to player: ' + game.global.myPlayer.id)
-			}
 			break
 		case 'JOIN ROOM' :
 			if(msg.hasEntered){
 				game.global.myPlayer.room = {
 					name : msg.name,
 					mode: msg.mode,
+					creatorName: msg.creator,
 					creator: false
 				}
 				if (msg.inGame){
@@ -91,10 +73,6 @@ window.onload = function() {
 			}
 			break
 		case 'GAME STATE UPDATE' :
-			if (game.global.DEBUG_MODE) {
-				console.log('[DEBUG] GAME STATE UPDATE message recieved')
-				console.dir(msg)
-			}
 			
 			if (typeof game.global.myPlayer.image !== 'undefined') {
 				for (var player of msg.players) {
@@ -107,6 +85,8 @@ window.onload = function() {
 						game.global.myPlayer.score = player.score
 						game.global.myPlayer.ammo = player.ammo
 						game.global.myPlayer.gas = player.gas
+						game.global.myPlayer.isDead = player.isDead
+						game.global.myPlayer.imageDestroyed = false;
 					} else {
 						if (typeof game.global.otherPlayers[player.id] == 'undefined') {
 							//Si los jugadores rivales aun no tiene info, se le mete
@@ -164,12 +144,18 @@ window.onload = function() {
 					game.global.powerup.image.y = msg.powerups[0].posY
 					game.global.powerup.image.loadTexture('PU' + msg.powerups[0].type)
 				}
+				if(game.global.myPlayer.isDead && (typeof game.global.myPlayer.text != 'undefined')){
+					game.global.myPlayer.image.destroy();
+					delete game.global.myPlayer.text;
+					game.global.myPlayer.lifeText.destroy();
+					showResults();
+				}
 			}
 			break
 		case 'REMOVE PLAYER' :
 			//REMOVE PLAYER: Se carga la imagen y borra al jugador del array
+			//No se usa
 			game.global.otherPlayers[msg.id].image.destroy()
-			//game.global.otherPlayers[msg.id].text.destroy()
 			delete game.global.otherPlayers[msg.id]
 			break;
 		case 'UPDATE ROOMS' :
@@ -201,6 +187,7 @@ window.onload = function() {
 				game.global.myPlayer.room = {
 					name: msg.roomName,
 					mode: msg.roomMode,
+					creatorName: msg.roomCreator,
 					creator: true
 				}
 				game.state.start('roomState')
@@ -218,6 +205,7 @@ window.onload = function() {
 			if (game.global.myPlayer.id == playerid) {
 				game.global.myPlayer.image.destroy();
 				game.global.myPlayer.text.destroy();
+				delete game.global.myPlayer.text;
 				game.global.myPlayer.lifeText.destroy();
 			}else{
 				game.global.otherPlayers[playerid].image.destroy();
@@ -230,7 +218,7 @@ window.onload = function() {
 				game.global.otherPlayers[msg.playerid].image.destroy();
 				game.global.otherPlayers[msg.playerid].text.destroy();
 				game.global.otherPlayers[msg.playerid].lifeText.destroy();
-				game.global.otherPlayers[msg.playerid] = undefined;		
+				game.global.otherPlayers[msg.playerid] = undefined;
 			}
 			break
 		case 'SHOW RESULTS':
@@ -247,8 +235,6 @@ window.onload = function() {
 			game.global.hallOfFame = [];
 			for(var playerScore of msg.hall){
 				let scoreTuple = [playerScore.name, playerScore.score];
-				//let scoreText = playerScore.name + " : " + playerScore.score + "\n";
-				//console.log(playerScore.name + " : " + playerScore.score);
 				game.global.hallOfFame.push(scoreTuple);
 			}
 			game.state.start('hallState');
@@ -257,7 +243,6 @@ window.onload = function() {
 			let chatString = "";
 			for (var messageText of msg.chatMessages){
 				chatString += messageText.text + "\n";
-				console.log(messageText.text);
 			}
 			game.global.chat.setText(chatString);			
 			break
@@ -265,7 +250,6 @@ window.onload = function() {
 			game.state.start('lobbyState');
 			break
 		default :
-			console.dir(msg)
 			break
 		}
 	}

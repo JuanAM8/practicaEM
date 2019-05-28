@@ -15,7 +15,6 @@ public class PowerUp extends SpaceObject {
 		this.setPosition(Math.random() * 1000, Math.random() * 600);
 		this.setFacingAngle(0);
 		this.setVelocity(0, 0);
-		System.out.println("x: "+getPosX()+", y: "+getPosY()+", type: " +getType());
 	}
 
 	public int getId() {

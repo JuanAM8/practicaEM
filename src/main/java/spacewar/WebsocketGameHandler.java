@@ -82,6 +82,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					msg.put("event", "JOIN ROOM");
 					msg.put("name", node.path("name").asText());
 					msg.put("mode", node.path("mode").asInt());
+					msg.put("creator", room.getCreator());
 					msg.put("inGame", room.isInGame());
 					msg.put("hasEntered", hasEntered);
 					msg.put("roomExists", true);
@@ -156,6 +157,7 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 				msg.put("success", successRoom);
 				msg.put("roomName", node.path("room").get("name").asText());
 				msg.put("roomMode", node.path("room").get("mode").asInt());
+				msg.put("roomCreator", player.getUserName());
 				player.getSession().sendMessage(new TextMessage(msg.toString()));
 				break;
 			case "UPDATE ROOMS":
@@ -212,7 +214,9 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 					room.lockJoinLock();
 					try {
 						room.removePlayer(player);
-						room.decrementAlivePlayers();
+						if(!player.isDead()) {
+							room.decrementAlivePlayers();
+						}
 						player.setRoomName("");
 						if (room.getNumberOfPlayers() == 0) {
 							game.removeRoom(room);
@@ -292,9 +296,12 @@ public class WebsocketGameHandler extends TextWebSocketHandler {
 			boolean roomRemoved = false;
 			roomAux.lockJoinLock();
 			try {
+				boolean isDead = player.isDead();
 				roomAux.removePlayer(player);
 				if (roomAux.isInGame()) {
-					roomAux.decrementAlivePlayers();
+					if(!isDead) {
+						roomAux.decrementAlivePlayers();
+					}
 				} else if (exitedCreator != player) {
 					if (roomAux.getNumberOfPlayers() == 1) {
 						msg.put("event", "ROOM NOT READY");
